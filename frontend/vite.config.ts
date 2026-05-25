@@ -23,6 +23,8 @@ export default defineConfig({
           "/mekanlar/*",
         ],
         crawlLinks: true,
+        filter: ({ path }) =>
+          !path.startsWith("/admin") && path !== "/login",
       },
     }),
     react(),
