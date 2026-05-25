@@ -129,7 +129,7 @@
       transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
-  main[data-site-shell] > section[data-section-visible="true"] {
+  html[data-section-animations="ready"] main[data-site-shell] > section[data-section-visible="true"] {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
