@@ -15,8 +15,11 @@ const POCKETBASE_SUPERUSER_PASSWORD =
   process.env.POCKETBASE_SUPERUSER_PASSWORD ||
   process.env.POCKETBASE_ADMIN_PASSWORD;
 
+console.log("🔍 DEBUG: Available env keys:", Object.keys(process.env).filter(k => k.includes("POCKET")).join(", "));
+
 if (!POCKETBASE_URL) {
   console.error("❌ Missing POCKETBASE_URL or VITE_POCKETBASE_URL.");
+  console.error("   Set them in Cloudflare Dashboard → Workers & Pages → mogan-kampus → Settings → Environment variables");
   process.exit(1);
 }
 
