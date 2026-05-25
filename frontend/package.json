@@ -10,6 +10,7 @@
     "build:dev": "vite build --mode development",
     "deploy:s3": "aws s3 sync dist/client s3://$AWS_S3_BUCKET --delete --exclude 'assets/*' --cache-control 'public,max-age=300' && aws s3 sync dist/client/assets s3://$AWS_S3_BUCKET/assets --delete --cache-control 'public,max-age=31536000,immutable' && aws cloudfront create-invalidation --distribution-id $AWS_CLOUDFRONT_DISTRIBUTION_ID --paths '/*'",
     "deploy:aws": "bun run build && bun run deploy:s3",
+    "deploy:cf": "wrangler pages deploy dist/client --project-name=mogan-kampus --branch=main",
     "apply:pocketbase-rules": "node scripts/apply-pocketbase-rules.mjs",
     "seed:pocketbase": "node scripts/seed-pocketbase.mjs",
     "validate:pocketbase": "node scripts/validate-pocketbase.mjs",
@@ -88,6 +89,7 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "wrangler": "^4.94.0"
   }
 }
