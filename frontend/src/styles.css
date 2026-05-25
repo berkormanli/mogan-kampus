@@ -121,6 +121,9 @@
   main[data-site-shell] > section {
     min-height: calc(100dvh - 4.5rem);
   }
+  main[data-site-shell] > section[data-compact-hero="true"] {
+    min-height: auto;
+  }
   html[data-section-animations="ready"] main[data-site-shell] > section {
     opacity: 0;
     transform: translate3d(0, 36px, 0);

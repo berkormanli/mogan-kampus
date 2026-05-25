@@ -8,21 +8,38 @@ export function PageHero({
   eyebrow,
   headline,
   intro,
+  compact = false,
 }: {
   eyebrow: string;
   headline: string;
   intro: string;
+  compact?: boolean;
 }) {
   return (
     <section
-      className="px-6 md:px-12 py-20 md:py-28 text-primary-foreground"
+      data-compact-hero={compact || undefined}
+      className={`px-6 md:px-12 text-primary-foreground ${
+        compact ? "py-12 md:py-16" : "py-20 md:py-28"
+      }`}
       style={{ background: "var(--gradient-navy)" }}
     >
       <div className="max-w-7xl mx-auto">
         <Reveal>
-          <p className="text-sm tracking-[0.25em] uppercase text-accent mb-5">{eyebrow}</p>
-          <h1 className="text-display text-5xl md:text-8xl leading-[0.95] max-w-5xl">{headline}</h1>
-          <p className="mt-8 max-w-2xl text-lg text-primary-foreground/80 leading-relaxed">
+          <p
+            className={`text-sm tracking-[0.25em] uppercase text-accent ${compact ? "mb-4" : "mb-5"}`}
+          >
+            {eyebrow}
+          </p>
+          <h1
+            className={`text-display leading-[0.95] max-w-5xl ${
+              compact ? "text-4xl md:text-6xl" : "text-5xl md:text-8xl"
+            }`}
+          >
+            {headline}
+          </h1>
+          <p
+            className={`${compact ? "mt-5" : "mt-8"} max-w-2xl text-lg text-primary-foreground/80 leading-relaxed`}
+          >
             {intro}
           </p>
         </Reveal>
@@ -382,7 +399,7 @@ function DetailPage({
 
   return (
     <>
-      <PageHero eyebrow={eyebrow} headline={title} intro={intro} />
+      <PageHero eyebrow={eyebrow} headline={title} intro={intro} compact />
       <section className="px-6 md:px-12 py-20 md:py-28 max-w-7xl mx-auto">
         <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
           <Reveal>

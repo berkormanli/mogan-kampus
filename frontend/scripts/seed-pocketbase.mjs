@@ -17,6 +17,1053 @@ if (!POCKETBASE_SUPERUSER_EMAIL || !POCKETBASE_SUPERUSER_PASSWORD) {
   throw new Error("Missing POCKETBASE_SUPERUSER_EMAIL or POCKETBASE_SUPERUSER_PASSWORD.");
 }
 
+const facilities = [
+  {
+    id: "01",
+    name: "Adventure Park",
+    category: "Macera / Açık Alan",
+    featured: true,
+    location: "Göl Kıyısı",
+    environment: "Açık Alan",
+    capacity: {
+      min: 20,
+      max: 200,
+      unit: "Kişi",
+    },
+    duration: "Tam Gün",
+    description:
+      "Survivor tarzı orman parkuru. Engel setleri, halat köprüleri, kaya tırmanma ve macera istasyonları ile Mogan kıyısında eşsiz bir doğa deneyimi.",
+    specifications: {
+      features: [
+        "Survivor tarzı engel parkuru",
+        "Halat köprü & denge istasyonları",
+        "Kaya tırmanma duvarı",
+        "Lastik engel & tünel set",
+        "Göl manzaralı final alanı",
+      ],
+    },
+    suitable_programs: [
+      "Survivor Turnuvası",
+      "Takım Oyunları",
+      "Liderlik Programları",
+      "Okul Gezisi Paketleri",
+      "Kamp Programları",
+    ],
+  },
+  {
+    id: "02",
+    name: "Açık Engel Parkuru",
+    category: "Spor Tesisi",
+    featured: false,
+    location: "Göl Kıyısı",
+    environment: "Açık Alan",
+    capacity: {
+      min: 10,
+      max: 200,
+      unit: "Kişi",
+    },
+    description:
+      "Göl kıyısında kurulu renkli engel parkuru. Tırmanma, denge ve takım çalışması bir arada.",
+    specifications: {
+      features: [
+        "Renkli denge kirişleri",
+        "Halka ve halat istasyonları",
+        "Kaya tırmanma paneli",
+        "Lastik labirent",
+      ],
+    },
+    suitable_programs: [
+      "Takım oyunları",
+      "Survivor etkinlikleri",
+      "Beden eğitimi dersleri",
+      "Grup motivasyon programları",
+    ],
+  },
+  {
+    id: "03",
+    name: "Outdoor Basketbol Sahası",
+    category: "Spor Sahası",
+    featured: false,
+    location: "Göl Manzarası",
+    environment: "Açık Alan",
+    capacity: {
+      min: 10,
+      max: 40,
+      unit: "Kişi",
+    },
+    description:
+      "Profesyonel zemin kaplamalı açık basketbol sahası. Göl manzarası eşliğinde spor deneyimi.",
+    specifications: {
+      features: [
+        "Profesyonel kauçuk zemin",
+        "Resmi basketbol potası",
+        "Kenar bank & dinlenme alanı",
+        "Gece aydınlatması",
+      ],
+    },
+    suitable_programs: [
+      "Basketbol turnuvaları",
+      "Beden eğitimi etkinlikleri",
+      "Serbest spor saatleri",
+    ],
+  },
+  {
+    id: "04",
+    name: "Plaj Futbol Sahası",
+    category: "Plaj Sahası",
+    featured: false,
+    location: "Kumsal",
+    environment: "Açık Alan",
+    capacity: {
+      min: 10,
+      max: 60,
+      unit: "Kişi",
+    },
+    description:
+      "Mogan kıyısında doğal kumsal alanda plaj futbolu sahası. Turnuvalar ve takım aktiviteleri için.",
+    specifications: {
+      features: [
+        "Doğal kum zemin",
+        "Özel plaj futbol kaleleri",
+        "Skor tabelası",
+        "Soyunma & duş imkânı",
+      ],
+    },
+    suitable_programs: ["Plaj Futbolu Atölyesi", "Strateji Hamleleri", "Okul spor şenlikleri"],
+  },
+  {
+    id: "05",
+    name: "Plaj Voleybol Sahası",
+    category: "Plaj Sahası",
+    featured: false,
+    location: "Kumsal",
+    environment: "Açık Alan",
+    capacity: {
+      min: 8,
+      max: 60,
+      unit: "Kişi",
+    },
+    description:
+      "Göl kenarında kum voleybol sahası. Resmi fileli, turnuva için özel donatılmış alan.",
+    specifications: {
+      features: ["Resmi voleybol filesi", "Doğal kum zemin", "Takım bankları", "Ekipman deposu"],
+    },
+    suitable_programs: [
+      "Plaj Voleybolu Atölyesi",
+      "Spor şenlikleri",
+      "Takım oluşturma etkinlikleri",
+    ],
+  },
+  {
+    id: "06",
+    name: "Human Foosball Alanı",
+    category: "Eğlence Alanı",
+    featured: false,
+    location: "Açık Saha",
+    environment: "Açık Alan",
+    capacity: {
+      min: 10,
+      max: 50,
+      unit: "Kişi",
+    },
+    description:
+      "Canlı langırt! Köpüklü çubuklara tutunarak birlikte hareket. Koordinasyon ve kahkaha garantili.",
+    specifications: {
+      features: [
+        "Şişme alan yapısı",
+        "Köpüklü güvenlik çubukları",
+        "Kum zemin",
+        "Uzman animatör desteği",
+      ],
+    },
+    suitable_programs: ["Takım oyunları", "Kısa mola aktiviteleri", "Okul gezisi paketleri"],
+  },
+  {
+    id: "07",
+    name: "Masal & Atölye Sınıfı",
+    category: "İç Mekan",
+    featured: false,
+    location: "Kapalı Alan",
+    environment: "Kapalı",
+    capacity: {
+      min: 10,
+      max: 30,
+      unit: "Kişi",
+    },
+    description:
+      "Drama, yaratıcı yazma ve edebi atölyeler için tematik dekore edilmiş kapalı öğrenme alanı.",
+    specifications: {
+      features: [
+        "Tematik dekorasyon & kostümler",
+        "Kütüphane & kaynaklar",
+        "Yazı tahtası & sunum ekipmanı",
+        "Hava koşullarına bağımsız",
+      ],
+    },
+    suitable_programs: [
+      "Alice Harikalar Diyarında",
+      "Küçük Prens",
+      "Yaratıcı Yazma",
+      "Drama",
+      "Felsefe atölyeleri",
+    ],
+  },
+  {
+    id: "08",
+    name: "Futbol Sahası",
+    category: "Spor Sahası",
+    featured: false,
+    location: "Açık Alan",
+    environment: "Açık Alan",
+    capacity: {
+      min: 20,
+      max: 100,
+      unit: "Kişi",
+    },
+    description:
+      "Doğal çim kaplamalı tam ölçekli futbol sahası. Resmi maçlar ve Survivor finalleri için ideal.",
+    specifications: {
+      features: [
+        "Doğal çim zemin",
+        "Resmi kale & çizgiler",
+        "Soyunma odaları",
+        "Tribün & seyirci alanı",
+      ],
+    },
+    suitable_programs: [
+      "Futbol turnuvaları",
+      "Survivor kapanış etkinlikleri",
+      "Okul spor şenlikleri",
+    ],
+  },
+  {
+    id: "09",
+    name: "Açık Öğrenme Alanları",
+    category: "Eğitim Alanı",
+    featured: false,
+    location: "Doğa İçinde",
+    environment: "Açık Alan",
+    capacity: {
+      min: 10,
+      max: 80,
+      unit: "Kişi",
+    },
+    description:
+      "Çardak sınıfı, orman zemini, göl kıyısı platformu ve çimenlik ders alanı — 4 konfigürasyon.",
+    specifications: {
+      configurations: 4,
+      features: [
+        "Çardak sınıf (gölgeli)",
+        "Orman tahtı oturma grubu",
+        "Göl kıyısı platform alanı",
+        "Doğal çimenlik açık sınıf",
+      ],
+    },
+    suitable_programs: [
+      "Tüm atölye programları",
+      "LGS hazırlık kampı",
+      "Doğa yürüyüşü molaları",
+      "Grup tartışmaları",
+    ],
+  },
+];
+
+const careerPrograms = [
+  {
+    id: "01",
+    name: "MOGAN HACKATHON",
+    category: "Teknoloji",
+    description:
+      "48 saatlik yoğun proje geliştirme maratonu. Takımlar gerçek dünya problemlerine çözüm üretir, jüri önünde sunar.",
+    specifications: {
+      duration: "2 Gün",
+      capacity: {
+        min: 12,
+        max: 80,
+        unit: "Kişi",
+      },
+      format: "Takım bazlı proje geliştirme",
+      outcome: "Jüri önünde sunum",
+    },
+  },
+  {
+    id: "02",
+    name: "UZMAN SÖYLEŞİLERİ",
+    category: "Kariyer",
+    description:
+      "Sektörün önde gelen isimleri kampüse gelerek deneyimlerini ve kariyer yolculuklarını öğrencilerle paylaşır.",
+    specifications: {
+      duration: "Haftalık",
+      capacity: {
+        min: 20,
+        max: 120,
+        unit: "Kişi",
+      },
+      format: "Konuşmacı / söyleşi",
+      frequency: "Haftalık",
+    },
+  },
+  {
+    id: "03",
+    name: "YILDIZ GÖZLEMİ",
+    category: "Gece",
+    description:
+      "Işık kirliliğinden uzak Mogan gökyüzünde teleskopla gezegen ve yıldız gözlemi. Astronomi uzmanı rehberliğinde.",
+    specifications: {
+      duration: "Akşam",
+      capacity: {
+        min: 10,
+        max: 60,
+        unit: "Kişi",
+      },
+      format: "Gözlem & rehberlik",
+      equipment: "Teleskop",
+      guide: "Astronomi uzmanı",
+    },
+  },
+  {
+    id: "04",
+    name: "GÖL KENARI YOGA",
+    category: "Wellness",
+    description:
+      "Sabah erken saatlerde göl manzarasında zihin açıcı yoga ve meditasyon seansları. Güne enerjik ve odaklı başlamak için.",
+    specifications: {
+      duration: "1.5 Saat",
+      capacity: {
+        min: 10,
+        max: 50,
+        unit: "Kişi",
+      },
+      format: "Yoga & meditasyon",
+      time_of_day: "Sabah erken saatler",
+      location: "Göl kenarı",
+    },
+  },
+  {
+    id: "05",
+    name: "DEMO DAY",
+    category: "Teknoloji",
+    description:
+      "Öğrencilerin hafta boyunca geliştirdikleri projeleri tüm kampüse sunduğu heyecanlı gösteri günü. Geri bildirim ve kutlama.",
+    specifications: {
+      duration: "Haftalık",
+      capacity: "Tüm Kampüs",
+      format: "Proje sunumu & geri bildirim",
+      frequency: "Haftalık",
+    },
+  },
+  {
+    id: "06",
+    name: "MEZUNİYET TÖRENİ",
+    category: "Sosyal",
+    description:
+      "Sezon boyunca geliştirilen projelerin sergilendiği, sertifikaların verildiği ve anıların paylaşıldığı özel kapanış töreni.",
+    specifications: {
+      duration: "Sezon Sonu",
+      capacity: "Tüm Kampüs",
+      format: "Tören & sergi",
+      includes: ["Proje sergisi", "Sertifika dağıtımı", "Anı paylaşımı"],
+    },
+  },
+  {
+    id: "07",
+    name: "ROBOTİK ATÖLYE",
+    category: "Teknoloji",
+    description:
+      "Arduino ve Lego Mindstorms ile robot tasarımı ve programlama. Temel elektronik ve mühendislik kavramlarına giriş.",
+    specifications: {
+      duration: "Yarım Gün",
+      capacity: {
+        min: 10,
+        max: 40,
+        unit: "Kişi",
+      },
+      format: "Hands-on atölye",
+      tools: ["Arduino", "Lego Mindstorms"],
+      topics: ["Robot tasarımı", "Programlama", "Temel elektronik", "Mühendislik kavramları"],
+    },
+  },
+  {
+    id: "08",
+    name: "TASARIM DÜŞÜNCE",
+    category: "Yaratıcılık",
+    description:
+      "Empati haritası, prototipleme ve test aşamalarıyla gerçek problemlere yaratıcı çözümler üretme atölyesi.",
+    specifications: {
+      duration: "Tam Gün",
+      capacity: {
+        min: 15,
+        max: 60,
+        unit: "Kişi",
+      },
+      format: "Design Thinking atölyesi",
+      methodology: ["Empati haritası", "Prototipleme", "Test aşamaları"],
+      focus: "Gerçek problemlere yaratıcı çözümler",
+    },
+  },
+  {
+    id: "09",
+    name: "KODLAMA BOOTCAMP",
+    category: "Akademik",
+    description:
+      "Python, web geliştirme ve yapay zeka temelleri. Başlangıç seviyesinden ileri seviyeye yoğun programlama kampı.",
+    specifications: {
+      duration: "3–5 Gün",
+      capacity: {
+        min: 15,
+        max: 45,
+        unit: "Kişi",
+      },
+      format: "Yoğun kamp",
+      topics: ["Python", "Web geliştirme", "Yapay zeka temelleri"],
+      levels: "Başlangıç → İleri seviye",
+    },
+  },
+  {
+    id: "10",
+    name: "MENTORLUK PROGRAMI",
+    category: "Liderlik",
+    description:
+      "Sektör profesyonelleriyle birebir mentorluk seansları. Kariyer hedefleri belirleme ve yol haritası oluşturma.",
+    specifications: {
+      duration: "Sezon Boyunca",
+      capacity: {
+        min: 5,
+        max: 20,
+        unit: "Kişi",
+      },
+      format: "Birebir mentorluk",
+      mentors: "Sektör profesyonelleri",
+      focus: ["Kariyer hedefleri belirleme", "Yol haritası oluşturma"],
+    },
+  },
+  {
+    id: "11",
+    name: "TAKIM KOÇLUĞU",
+    category: "Takım",
+    description:
+      "Takım dinamikleri, çatışma yönetimi ve iletişim becerileri üzerine atölye. Lider yetiştiren bir program.",
+    specifications: {
+      duration: "1 Gün",
+      capacity: {
+        min: 10,
+        max: 50,
+        unit: "Kişi",
+      },
+      format: "Atölye",
+      topics: ["Takım dinamikleri", "Çatışma yönetimi", "İletişim becerileri"],
+      outcome: "Lider yetiştirme",
+    },
+  },
+  {
+    id: "12",
+    name: "SUNUM & İLETİŞİM",
+    category: "Sunum",
+    description:
+      "Etkili sunum teknikleri, beden dili ve ikna sanatı. Fikirlerini güçlü şekilde ifade etmeyi öğren.",
+    specifications: {
+      duration: "1 Gün",
+      capacity: {
+        min: 10,
+        max: 40,
+        unit: "Kişi",
+      },
+      format: "Atölye",
+      topics: ["Etkili sunum teknikleri", "Beden dili", "İkna sanatı"],
+      outcome: "Fikirleri güçlü ifade etme",
+    },
+  },
+];
+
+const workshops = [
+  {
+    id: "01",
+    name: "Alice Harikalar Diyarında",
+    category: "Edebiyat & Dil",
+    target_age: "8–12 yaş",
+    duration: "2 Saat",
+    capacity: { min: 15, max: 30, unit: "Kişi" },
+    description:
+      "Lewis Carroll'ın klasik eseri üzerinden yaratıcı drama, karakter analizi ve hayal gücü çalışması. Öğrenciler eserdeki karakterlere bürünerek hikayeyi yeniden canlandırır.",
+    specifications: {
+      activities: [
+        "Yaratıcı drama",
+        "Karakter analizi",
+        "Hayal gücü çalışması",
+        "Hikaye canlandırma",
+      ],
+      curriculum_link: "Türkçe / Edebiyat",
+      environment: "Kapalı (Masal Sınıfı)",
+    },
+  },
+  {
+    id: "02",
+    name: "Küçük Prens",
+    category: "Edebiyat & Dil",
+    target_age: "10–14 yaş",
+    duration: "2 Saat",
+    capacity: { min: 15, max: 30, unit: "Kişi" },
+    description:
+      "Saint-Exupéry'nin başyapıtı üzerinden felsefe, dostluk ve sorumluluk kavramları. Tartışma ve yaratıcı yazma etkinlikleri.",
+    specifications: {
+      activities: ["Felsefi tartışma", "Yaratıcı yazma", "Kavram çalışması"],
+      curriculum_link: "Türkçe / Felsefe",
+      environment: "Kapalı (Masal Sınıfı)",
+    },
+  },
+  {
+    id: "03",
+    name: "Yaratıcı Yazarlık",
+    category: "Edebiyat & Dil",
+    target_age: "10–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 25, unit: "Kişi" },
+    description:
+      "Hikaye kurgusu, karakter yaratma ve diyalog yazımı teknikleri. Öğrenciler kendi kısa hikayelerini yazar ve paylaşır.",
+    specifications: {
+      activities: ["Hikaye kurgusu", "Karakter yaratma", "Diyalog yazımı", "Kısa hikaye yazma"],
+      curriculum_link: "Türkçe / Yazma Becerileri",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "04",
+    name: "Şiir Atölyesi",
+    category: "Edebiyat & Dil",
+    target_age: "12–18 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 25, unit: "Kişi" },
+    description:
+      "Şiir türleri, kafiye ve ritim çalışmaları. Doğadan ilham alarak özgün şiirler üretme.",
+    specifications: {
+      activities: ["Şiir türleri inceleme", "Kafiye & ritim çalışması", "Doğadan ilham yazımı"],
+      curriculum_link: "Türkçe / Edebiyat",
+      environment: "Açık Alan (Göl Kenarı)",
+    },
+  },
+  {
+    id: "05",
+    name: "Münazara & Tartışma",
+    category: "Edebiyat & Dil",
+    target_age: "12–18 yaş",
+    duration: "2 Saat",
+    capacity: { min: 12, max: 40, unit: "Kişi" },
+    description:
+      "Argüman geliştirme, karşı argüman oluşturma ve etkili konuşma teknikleri. Takım halinde münazara pratiği.",
+    specifications: {
+      activities: [
+        "Argüman geliştirme",
+        "Karşı argüman oluşturma",
+        "Etkili konuşma",
+        "Takım münazarası",
+      ],
+      curriculum_link: "Türkçe / İletişim",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "06",
+    name: "Matematik Dedektifleri",
+    category: "Matematik & Mantık",
+    target_age: "8–12 yaş",
+    duration: "2 Saat",
+    capacity: { min: 15, max: 30, unit: "Kişi" },
+    description:
+      "İpuçlarıyla matematik bulmacaları çözme. Sayılar, örüntüler ve temel geometri problemlerini dedektif hikayesi formatında keşfetme.",
+    specifications: {
+      activities: [
+        "Matematik bulmacaları",
+        "Örüntü keşfi",
+        "Geometri problemleri",
+        "Dedektif senaryoları",
+      ],
+      curriculum_link: "Matematik",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "07",
+    name: "Strateji Hamleleri",
+    category: "Matematik & Mantık",
+    target_age: "10–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Satranç, mangala ve stratejik kart oyunlarıyla eleştirel düşünme ve ileri planlama becerisi geliştirme.",
+    specifications: {
+      activities: ["Satranç", "Mangala", "Stratejik kart oyunları", "Eleştirel düşünme"],
+      curriculum_link: "Matematik / Mantık",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "08",
+    name: "Kodlama & Algoritma",
+    category: "Matematik & Mantık",
+    target_age: "10–16 yaş",
+    duration: "3 Saat",
+    capacity: { min: 10, max: 25, unit: "Kişi" },
+    description:
+      "Blok tabanlı ve metin tabanlı kodlama ile algoritmik düşünme. Scratch, Python temelleri ve problem çözme.",
+    specifications: {
+      activities: [
+        "Blok tabanlı kodlama",
+        "Metin tabanlı kodlama",
+        "Algoritmik düşünme",
+        "Problem çözme",
+      ],
+      tools: ["Scratch", "Python"],
+      curriculum_link: "Bilişim Teknolojileri / Matematik",
+      environment: "Kapalı",
+    },
+  },
+  {
+    id: "09",
+    name: "Finansal Okuryazarlık",
+    category: "Matematik & Mantık",
+    target_age: "12–18 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 15, max: 35, unit: "Kişi" },
+    description:
+      "Bütçe planlama, tasarruf, yatırım temelleri ve girişimcilik kavramları. Simülasyonlarla finansal karar alma.",
+    specifications: {
+      activities: [
+        "Bütçe planlama",
+        "Tasarruf stratejileri",
+        "Yatırım temelleri",
+        "Girişimcilik",
+        "Finansal simülasyonlar",
+      ],
+      curriculum_link: "Matematik / Sosyal Bilgiler",
+      environment: "Kapalı",
+    },
+  },
+  {
+    id: "10",
+    name: "Geometri & Origami",
+    category: "Matematik & Mantık",
+    target_age: "8–14 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Kağıt katlama sanatı ile geometrik şekiller, simetri ve uzamsal düşünme becerisi. Eğlenceli ve somut matematik deneyimi.",
+    specifications: {
+      activities: ["Origami", "Geometrik şekil oluşturma", "Simetri çalışması", "Uzamsal düşünme"],
+      curriculum_link: "Matematik / Geometri",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "11",
+    name: "Doğa Kaşifi",
+    category: "Fen & Doğa",
+    target_age: "5–10 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 15, max: 30, unit: "Kişi" },
+    description:
+      "Bitki ve böcek gözlemi, toprak analizi ve ekosistem keşfi. Doğadaki canlıları tanıma ve sınıflandırma.",
+    specifications: {
+      activities: [
+        "Bitki gözlemi",
+        "Böcek gözlemi",
+        "Toprak analizi",
+        "Ekosistem keşfi",
+        "Sınıflandırma",
+      ],
+      curriculum_link: "Fen Bilimleri / Hayat Bilgisi",
+      environment: "Açık Alan (Orman & Göl)",
+    },
+  },
+  {
+    id: "12",
+    name: "Deney Laboratuvarı",
+    category: "Fen & Doğa",
+    target_age: "8–14 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 25, unit: "Kişi" },
+    description:
+      "Kimyasal reaksiyonlar, fizik deneyleri ve biyoloji gözlemleri. Güvenli ortamda bilimsel yöntem uygulama.",
+    specifications: {
+      activities: [
+        "Kimyasal reaksiyonlar",
+        "Fizik deneyleri",
+        "Biyoloji gözlemleri",
+        "Bilimsel yöntem uygulama",
+      ],
+      curriculum_link: "Fen Bilimleri",
+      environment: "Kapalı (Laboratuvar)",
+    },
+  },
+  {
+    id: "13",
+    name: "Astronomi & Uzay",
+    category: "Fen & Doğa",
+    target_age: "10–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 40, unit: "Kişi" },
+    description:
+      "Güneş sistemi, yıldızlar ve uzay araştırmaları. Teleskop gözlemi ve model roket yapımı.",
+    specifications: {
+      activities: [
+        "Güneş sistemi çalışması",
+        "Yıldız gözlemi",
+        "Teleskop kullanımı",
+        "Model roket yapımı",
+      ],
+      equipment: ["Teleskop", "Model roket kiti"],
+      curriculum_link: "Fen Bilimleri / Fizik",
+      environment: "Açık Alan (Gece & Gündüz)",
+    },
+  },
+  {
+    id: "14",
+    name: "Sürdürülebilir Yaşam",
+    category: "Fen & Doğa",
+    target_age: "10–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 15, max: 35, unit: "Kişi" },
+    description:
+      "Geri dönüşüm, enerji tasarrufu, su döngüsü ve ekolojik ayak izi kavramları. Çevre bilinci oluşturma.",
+    specifications: {
+      activities: [
+        "Geri dönüşüm uygulamaları",
+        "Enerji tasarrufu",
+        "Su döngüsü",
+        "Ekolojik ayak izi hesaplama",
+      ],
+      curriculum_link: "Fen Bilimleri / Çevre",
+      environment: "Açık / Kapalı",
+    },
+  },
+  {
+    id: "15",
+    name: "Tarım & Bahçecilik",
+    category: "Fen & Doğa",
+    target_age: "5–12 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Tohum ekme, bitki bakımı ve hasat deneyimi. Topraktan sofraya sürecin keşfi ve doğa sevgisi.",
+    specifications: {
+      activities: ["Tohum ekme", "Bitki bakımı", "Hasat deneyimi", "Doğa sevgisi"],
+      curriculum_link: "Hayat Bilgisi / Fen Bilimleri",
+      environment: "Açık Alan (Bahçe)",
+    },
+  },
+  {
+    id: "16",
+    name: "Resim & Doğa Boyama",
+    category: "Sanat & Tasarım",
+    target_age: "5–14 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Göl manzarası eşliğinde açık havada resim yapma. Suluboya, akrilik ve pastel boya teknikleri.",
+    specifications: {
+      activities: ["Açık hava resmi", "Suluboya", "Akrilik boya", "Pastel boya"],
+      curriculum_link: "Görsel Sanatlar",
+      environment: "Açık Alan (Göl Kenarı)",
+    },
+  },
+  {
+    id: "17",
+    name: "El Sanatları & Seramik",
+    category: "Sanat & Tasarım",
+    target_age: "8–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 25, unit: "Kişi" },
+    description:
+      "Kil şekillendirme, seramik boyama ve geleneksel el sanatları. Üç boyutlu düşünme ve motor beceri geliştirme.",
+    specifications: {
+      activities: ["Kil şekillendirme", "Seramik boyama", "Geleneksel el sanatları", "3D düşünme"],
+      curriculum_link: "Görsel Sanatlar / Teknoloji Tasarım",
+      environment: "Kapalı (Atölye)",
+    },
+  },
+  {
+    id: "18",
+    name: "Müzik & Ritim",
+    category: "Sanat & Tasarım",
+    target_age: "5–14 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Perküsyon çalgılar, ritim kalıpları ve grup müziği. Doğadan seslerle kompozisyon oluşturma.",
+    specifications: {
+      activities: ["Perküsyon", "Ritim kalıpları", "Grup müziği", "Doğa sesleri kompozisyonu"],
+      curriculum_link: "Müzik",
+      environment: "Açık / Kapalı",
+    },
+  },
+  {
+    id: "19",
+    name: "Fotoğrafçılık",
+    category: "Sanat & Tasarım",
+    target_age: "12–18 yaş",
+    duration: "3 Saat",
+    capacity: { min: 10, max: 20, unit: "Kişi" },
+    description:
+      "Kompozisyon, ışık kullanımı ve doğa fotoğrafçılığı. Kampüs çevresinde çekim pratiği ve portfolyo oluşturma.",
+    specifications: {
+      activities: ["Kompozisyon", "Işık kullanımı", "Doğa fotoğrafçılığı", "Portfolyo oluşturma"],
+      curriculum_link: "Görsel Sanatlar / Teknoloji",
+      environment: "Açık Alan (Kampüs Geneli)",
+    },
+  },
+  {
+    id: "20",
+    name: "Tiyatro & Drama",
+    category: "Sanat & Tasarım",
+    target_age: "8–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 12, max: 35, unit: "Kişi" },
+    description:
+      "Doğaçlama, sahne teknikleri ve karakter çalışması. Özgüven geliştirme ve ifade becerileri.",
+    specifications: {
+      activities: ["Doğaçlama", "Sahne teknikleri", "Karakter çalışması", "Özgüven geliştirme"],
+      curriculum_link: "Türkçe / Görsel Sanatlar",
+      environment: "Kapalı / Açık Sahne",
+    },
+  },
+  {
+    id: "21",
+    name: "Survivor Parkuru",
+    category: "Spor & Hareket",
+    target_age: "8–16 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 20, max: 60, unit: "Kişi" },
+    description:
+      "Engel parkuru, halat köprüler ve takım yarışları. Fiziksel dayanıklılık, cesaretlilik ve takım ruhu.",
+    specifications: {
+      activities: ["Engel parkuru", "Halat köprüler", "Takım yarışları", "Fiziksel dayanıklılık"],
+      curriculum_link: "Beden Eğitimi",
+      environment: "Açık Alan (Adventure Park)",
+    },
+  },
+  {
+    id: "22",
+    name: "Okçuluk",
+    category: "Spor & Hareket",
+    target_age: "10–18 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Temel okçuluk teknikleri, odaklanma ve hedef atışı. Güvenli ekipman ve uzman eğitmen eşliğinde.",
+    specifications: {
+      activities: ["Okçuluk teknikleri", "Odaklanma", "Hedef atışı"],
+      equipment: ["Güvenli yay", "Ok", "Hedef tahtası"],
+      curriculum_link: "Beden Eğitimi",
+      environment: "Açık Alan",
+    },
+  },
+  {
+    id: "23",
+    name: "Doğa Yürüyüşü",
+    category: "Spor & Hareket",
+    target_age: "5–18 yaş",
+    duration: "2–3 Saat",
+    capacity: { min: 15, max: 60, unit: "Kişi" },
+    description:
+      "Mogan Gölü çevresinde rehberli doğa yürüyüşü. Flora-fauna gözlemi ve pusula kullanımı.",
+    specifications: {
+      activities: ["Rehberli yürüyüş", "Flora-fauna gözlemi", "Pusula kullanımı"],
+      curriculum_link: "Beden Eğitimi / Fen Bilimleri",
+      environment: "Açık Alan (Göl Çevresi)",
+    },
+  },
+  {
+    id: "24",
+    name: "Plaj Sporları",
+    category: "Spor & Hareket",
+    target_age: "8–18 yaş",
+    duration: "2.5 Saat",
+    capacity: { min: 10, max: 60, unit: "Kişi" },
+    description:
+      "Plaj voleybolu, plaj futbolu ve kumda takım oyunları. Spor, eğlence ve takım çalışması bir arada.",
+    specifications: {
+      activities: ["Plaj voleybolu", "Plaj futbolu", "Kumda takım oyunları"],
+      curriculum_link: "Beden Eğitimi",
+      environment: "Açık Alan (Kumsal)",
+    },
+  },
+  {
+    id: "25",
+    name: "Geleneksel Çocuk Oyunları",
+    category: "Spor & Hareket",
+    target_age: "5–12 yaş",
+    duration: "2 Saat",
+    capacity: { min: 15, max: 50, unit: "Kişi" },
+    description:
+      "Yakan top, mendil kapmaca, istop ve uzun eşek gibi geleneksel Türk çocuk oyunları. Kültürel miras ve hareket.",
+    specifications: {
+      activities: ["Yakan top", "Mendil kapmaca", "İstop", "Uzun eşek"],
+      curriculum_link: "Beden Eğitimi / Kültür",
+      environment: "Açık Alan",
+    },
+  },
+  {
+    id: "26",
+    name: "Satranç Turnuvası",
+    category: "Strateji & Zeka Oyunları",
+    target_age: "8–18 yaş",
+    duration: "3 Saat",
+    capacity: { min: 16, max: 64, unit: "Kişi" },
+    description:
+      "Farklı seviyelerde satranç turnuvası. Açılış stratejileri, taktik problemler ve zaman yönetimi.",
+    specifications: {
+      activities: [
+        "Satranç turnuvası",
+        "Açılış stratejileri",
+        "Taktik problemler",
+        "Zaman yönetimi",
+      ],
+      curriculum_link: "Matematik / Mantık",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "27",
+    name: "Mangala & Geleneksel Oyunlar",
+    category: "Strateji & Zeka Oyunları",
+    target_age: "8–16 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 40, unit: "Kişi" },
+    description:
+      "Mangala, 9 taş ve diğer Türk zeka oyunları. Stratejik düşünme ve kültürel miras bir arada.",
+    specifications: {
+      activities: ["Mangala", "9 taş", "Türk zeka oyunları", "Stratejik düşünme"],
+      curriculum_link: "Matematik / Kültür",
+      environment: "Kapalı / Açık",
+    },
+  },
+  {
+    id: "28",
+    name: "Escape Room",
+    category: "Strateji & Zeka Oyunları",
+    target_age: "10–18 yaş",
+    duration: "1.5 Saat",
+    capacity: { min: 4, max: 20, unit: "Kişi" },
+    description:
+      "Tematik kaçış odaları. İpuçlarını çöz, bulmacaları tamamla ve süre bitmeden odadan çık. Takım çalışması ve mantık.",
+    specifications: {
+      activities: ["İpucu çözme", "Bulmaca tamamlama", "Takım çalışması", "Mantık egzersizi"],
+      curriculum_link: "Matematik / Mantık",
+      environment: "Kapalı (Tematik Oda)",
+    },
+  },
+  {
+    id: "29",
+    name: "Hazine Avı",
+    category: "Strateji & Zeka Oyunları",
+    target_age: "5–14 yaş",
+    duration: "2 Saat",
+    capacity: { min: 15, max: 60, unit: "Kişi" },
+    description:
+      "Kampüs genelinde ipuçlarıyla hazine arama. Harita okuma, yön bulma ve problem çözme becerileri.",
+    specifications: {
+      activities: ["Hazine arama", "Harita okuma", "Yön bulma", "Problem çözme"],
+      curriculum_link: "Sosyal Bilgiler / Matematik",
+      environment: "Açık Alan (Kampüs Geneli)",
+    },
+  },
+  {
+    id: "30",
+    name: "Akıl & Zeka Oyunları",
+    category: "Strateji & Zeka Oyunları",
+    target_age: "6–16 yaş",
+    duration: "2 Saat",
+    capacity: { min: 10, max: 30, unit: "Kişi" },
+    description:
+      "Tangram, sudoku, hafıza oyunları ve mantık bulmacaları. Zihinsel esneklik ve analitik düşünme geliştirme.",
+    specifications: {
+      activities: ["Tangram", "Sudoku", "Hafıza oyunları", "Mantık bulmacaları"],
+      curriculum_link: "Matematik / Mantık",
+      environment: "Kapalı / Açık",
+    },
+  },
+];
+
+function slugify(value) {
+  const replacements = {
+    ç: "c",
+    ğ: "g",
+    ı: "i",
+    ö: "o",
+    ş: "s",
+    ü: "u",
+  };
+
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replace(/[çğıöşü]/g, (character) => replacements[character])
+    .replace(/&/g, " ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function toVenue(facility) {
+  const capacity = `${facility.capacity.min}-${facility.capacity.max} ${facility.capacity.unit}`;
+
+  return {
+    ...facility,
+    slug: slugify(facility.name),
+    grades: `${facility.environment} · ${facility.location}`,
+    img: "",
+    text: facility.description,
+    summary: [facility.category, capacity, facility.duration].filter(Boolean).join(" · "),
+    detailTitle: facility.name,
+    detailBody: facility.description,
+    features: facility.specifications.features,
+    gallery: [],
+    ctaLabel: "Ziyaret Bilgisi Al",
+  };
+}
+
+function formatCapacity(capacity) {
+  if (typeof capacity === "string") return capacity;
+  return `${capacity.min}-${capacity.max} ${capacity.unit}`;
+}
+
+function toWorkshop(program) {
+  const { duration, capacity, ...highlights } = program.specifications;
+
+  return {
+    ...program,
+    slug: slugify(program.name),
+    title: program.name,
+    text: program.description,
+    summary: program.category,
+    detailTitle: program.name,
+    detailBody: program.description,
+    skills: Object.values(highlights).flat(),
+    duration,
+    capacity: formatCapacity(capacity),
+    img: "",
+    gallery: [],
+    ctaLabel: "Katılım Bilgisi Al",
+  };
+}
+
+function toProgram(workshop) {
+  return {
+    ...workshop,
+    n: workshop.id,
+    slug: slugify(workshop.name),
+    title: workshop.name,
+    img: "",
+    quote: workshop.category,
+    text: workshop.description,
+    summary: [workshop.category, workshop.target_age, workshop.duration].join(" · "),
+    detailTitle: workshop.name,
+    detailBody: workshop.description,
+    outcomes: workshop.specifications.activities,
+    ageRange: workshop.target_age,
+    duration: workshop.duration,
+    gallery: [],
+    ctaLabel: "Katılım Bilgisi Al",
+  };
+}
+
 const content = {
   utility: {
     location: "Mogan Gölü Kıyısı, Gölbaşı, Ankara",
@@ -59,85 +1106,16 @@ const content = {
     ctaLabel: "İletişime Geç",
   },
   programs: {
-    eyebrow: "Tematik · Oyunlaştırılmış · Derinlikli",
-    headline: "Kariyer Programları.",
-    items: [
-      {
-        n: "01",
-        slug: "alice-harikalar-diyarinda",
-        title: "Alice Harikalar Diyarında",
-        img: "",
-        quote: "Merakın peşinden gitmeyi öğrenmek.",
-        text: "Hayal gücünü ve eleştirel düşünceyi birleştiren tematik bir okuma ve rol yapma atölyesi. Öğrenciler hikayenin içine girer, kendi kararlarını üretir, yeni dünyalar tasarlar.",
-        summary: "Hayal gücü, karar verme ve eleştirel düşünceyi birleştiren tematik program.",
-        detailTitle: "Merakı bir öğrenme yolculuğuna dönüştüren program.",
-        detailBody:
-          "Öğrenciler hikaye içinde karar alır, karakterler üzerinden tartışır ve kendi yaratıcı çıktılarını üretir.",
-        outcomes: ["Yaratıcı düşünme", "Sözlü ifade", "Karar verme", "Hikaye tasarımı"],
-        ageRange: "8-14 yaş",
-        duration: "4-6 hafta",
-        gallery: [],
-        ctaLabel: "Ön Kayıt Yap",
-      },
-      {
-        n: "02",
-        slug: "kucuk-prens",
-        title: "Küçük Prens",
-        img: "",
-        quote: "Önemli olan gözle görülmez.",
-        text: "Empati, dostluk ve sorumluluk üzerine kurulu yaratıcı bir program. Felsefi sohbetler, tasarım çalışmaları ve sahne deneyimleriyle değer odaklı öğrenme.",
-        summary: "Empati, sorumluluk ve değer odaklı düşünme üzerine yaratıcı program.",
-        detailTitle: "Empatiyi, iletişimi ve sorumluluğu görünür kılan deneyim.",
-        detailBody:
-          "Felsefi sohbetler, drama çalışmaları ve tasarım görevleriyle öğrenciler değerleri tartışır ve sunar.",
-        outcomes: ["Empati", "Değer okuryazarlığı", "Drama", "Yaratıcı sunum"],
-        ageRange: "7-13 yaş",
-        duration: "4 hafta",
-        gallery: [],
-        ctaLabel: "Ön Kayıt Yap",
-      },
-      {
-        n: "03",
-        slug: "orman-ve-sovalye",
-        title: "Orman ve Şövalye",
-        img: "",
-        quote: "Cesaret, doğada yetişir.",
-        text: "Doğa içinde gerçekleşen, takım çalışması ve karakter gelişimini birleştiren immersive bir kariyer programı. Engel parkurları, görevler, hikaye temelli maceralar.",
-        summary: "Doğa, takım çalışması ve karakter gelişimini birleştiren açık alan programı.",
-        detailTitle: "Doğanın içinde takım olmayı ve liderlik almayı öğrenmek.",
-        detailBody:
-          "Açık alan görevleri, engel parkurları ve hikaye temelli takım mücadeleleriyle ilerleyen program.",
-        outcomes: ["Takım çalışması", "Liderlik", "Problem çözme", "Fiziksel farkındalık"],
-        ageRange: "9-15 yaş",
-        duration: "3-5 hafta",
-        gallery: [],
-        ctaLabel: "Ön Kayıt Yap",
-      },
-      {
-        n: "04",
-        slug: "bir-fikrim-var",
-        title: "Bir Fikrim Var",
-        img: "",
-        quote: "Her öğretmen bir mucittir.",
-        text: "Öğretmenlerin kendi atölyelerini Mogan Kampüs'te tasarlayıp uygulayabildiği özel bir program. Eğitimcilere yaratıcı projeleri için mekan ve destek sunuyoruz.",
-        summary: "Öğretmenlerin kendi atölyelerini tasarlayıp uygulayabildiği işbirliği programı.",
-        detailTitle: "Yaratıcı eğitim fikirlerine alan, ekipman ve uygulama desteği.",
-        detailBody:
-          "Öğretmenlerin atölye veya eğitim projelerini Mogan Kampüs ortamında hayata geçirmeleri için tasarlanmıştır.",
-        outcomes: ["Atölye tasarımı", "Eğitim işbirliği", "Uygulama desteği", "Mentörlük"],
-        ageRange: "Öğretmenler ve kurumlar",
-        duration: "Projeye göre",
-        gallery: [],
-        ctaLabel: "Atölye Önerisi Gönder",
-      },
-    ],
+    eyebrow: "Atölyeler",
+    headline: "30+ atölye. Altı öğrenme alanı.",
+    items: workshops.map(toProgram),
   },
   programsPage: {
-    eyebrow: "Kariyer Programları",
-    headline: "Tematik akışlarla derinleşen deneyim programları.",
+    eyebrow: "Atölyeler",
+    headline: "Sınıfların ötesinde öğrenme deneyimi.",
     intro:
-      "Programlarımız öğrencileri hikaye, üretim, portföy ve sunum aşamalarından oluşan uzun soluklu öğrenme akışlarına davet eder.",
-    ctaLabel: "Program İçin İletişime Geç",
+      "Her atölye, müfredatla bağlantılı olarak tasarlanmış olup öğrencilerin yaparak-yaşayarak öğrenmesini sağlar.",
+    ctaLabel: "Atölye İçin İletişime Geç",
   },
   stats: {
     eyebrow: "Vizyon & Misyon",
@@ -154,121 +1132,16 @@ const content = {
     ],
   },
   workshops: {
-    eyebrow: "Atölyeler & Deneyimler",
-    headline: "20+ atölye. Sayısız ilk deneyim.",
-    items: [
-      {
-        slug: "mogan-hackathon",
-        title: "Mogan Hackathon",
-        text: "Takımlar 48 saatte fikirden prototipe — gerçek bir problem, gerçek bir çözüm.",
-        summary: "Takımların kısa sürede fikir geliştirip prototip sunduğu yoğun üretim deneyimi.",
-        detailTitle: "Fikirden prototipe uzanan iki günlük üretim maratonu.",
-        detailBody:
-          "Öğrenciler problem tanımı, fikir seçimi, prototipleme ve sunum aşamalarından geçer.",
-        skills: ["Problem tanımı", "Prototipleme", "Takım çalışması", "Sunum"],
-        ageRange: "10-17 yaş",
-        duration: "2 gün",
-        capacity: "12-30 öğrenci",
-        img: "",
-        gallery: [],
-        ctaLabel: "Katılım Bilgisi Al",
-      },
-      {
-        slug: "robotik-atolyesi",
-        title: "Robotik Atölyesi",
-        text: "Mekanik, elektronik ve kodun buluştuğu yerde, çocukların eli her şeyi yaratır.",
-        summary: "Mekanik, elektronik ve kodlama temellerini proje üzerinden öğreten atölye.",
-        detailTitle: "Kodun fiziksel dünyada çalıştığını görme deneyimi.",
-        detailBody:
-          "Öğrenciler sensör, motor, mekanik kurgu ve temel kodlama ile çalışan sistemler üretir.",
-        skills: ["Temel kodlama", "Elektronik", "Mekanik kurgu", "Test etme"],
-        ageRange: "8-15 yaş",
-        duration: "6 oturum",
-        capacity: "8-16 öğrenci",
-        img: "",
-        gallery: [],
-        ctaLabel: "Katılım Bilgisi Al",
-      },
-      {
-        slug: "design-thinking",
-        title: "Design Thinking",
-        text: "Empati, fikir, prototip, test. Yaratıcı problemi çözmenin dünya çapındaki yöntemi.",
-        summary: "Empati, fikir üretimi, prototip ve test döngüsünü öğreten tasarım atölyesi.",
-        detailTitle: "Problemi anlamadan çözüm üretmeyen tasarım yaklaşımı.",
-        detailBody:
-          "Öğrenciler kullanıcı ihtiyacını anlamayı, fikirleri hızlıca görünür hale getirmeyi ve geri bildirimle geliştirmeyi öğrenir.",
-        skills: ["Empati", "Fikir üretimi", "Prototip", "Geri bildirim"],
-        ageRange: "9-17 yaş",
-        duration: "4 oturum",
-        capacity: "10-20 öğrenci",
-        img: "",
-        gallery: [],
-        ctaLabel: "Katılım Bilgisi Al",
-      },
-      {
-        slug: "coding-bootcamp",
-        title: "Coding Bootcamp",
-        text: "Yoğun, projeye dayalı kodlama programı; öğrenciler kendi portföylerini inşa eder.",
-        summary: "Öğrencilerin kendi dijital projelerini ürettiği yoğun kodlama programı.",
-        detailTitle: "Portföye dönüşen proje odaklı kodlama eğitimi.",
-        detailBody:
-          "Temel web ve uygulama mantığını proje üzerinden anlatan, çalışan çıktılarla ilerleyen kodlama programı.",
-        skills: ["Kodlama temelleri", "Arayüz mantığı", "Proje geliştirme", "Sunum"],
-        ageRange: "11-17 yaş",
-        duration: "8 oturum",
-        capacity: "8-14 öğrenci",
-        img: "",
-        gallery: [],
-        ctaLabel: "Katılım Bilgisi Al",
-      },
-      {
-        slug: "uzman-soylesileri",
-        title: "Uzman Söyleşileri",
-        text: "Bilim, sanat, spor ve girişimcilik dünyasından isimler, Mogan'da öğrencilerle buluşuyor.",
-      },
-      {
-        slug: "yildiz-gozlemi",
-        title: "Yıldız Gözlemi",
-        text: "Göl kenarında teleskoplarla; bilim ve sessizliğin birlikte öğrettiği bir gece.",
-      },
-      {
-        slug: "gol-kenari-yoga",
-        title: "Göl Kenarı Yoga",
-        text: "Sabah ışığında nefes, denge, odak. Bedenle başlayan bir öğrenme günü.",
-      },
-      {
-        slug: "mentorluk-programi",
-        title: "Mentörlük Programı",
-        text: "Her öğrenciye, hedefini gören bir mentör; her mentöre, ilham aldığı bir öğrenci.",
-      },
-      {
-        slug: "sunum-iletisim",
-        title: "Sunum & İletişim",
-        text: "Fikrini anlatabilmek, fikrin kendisi kadar önemlidir. Sahneye, mikrofona, kameraya hazırlık.",
-      },
-      {
-        slug: "demo-day",
-        title: "Demo Day",
-        text: "Atölye sonunda öğrenciler çalışmalarını ailelere ve jüriye sunar — gerçek bir lansman.",
-      },
-      {
-        slug: "takim-koclugu",
-        title: "Takım Koçluğu",
-        text: "Birlikte düşünen, birlikte karar alan, birlikte kazanan ekipler kurmak.",
-      },
-      {
-        slug: "mezuniyet-toreni",
-        title: "Mezuniyet Töreni",
-        text: "Bir programın sonu değil, yeni bir hikayenin başlangıcı için tasarlanmış kutlama.",
-      },
-    ],
+    eyebrow: "Kariyer Programları",
+    headline: "12 program. Geleceğe hazırlık.",
+    items: careerPrograms.map(toWorkshop),
   },
   workshopsPage: {
-    eyebrow: "Atölyeler",
-    headline: "Kısa, yoğun ve üretim odaklı öğrenme deneyimleri.",
+    eyebrow: "Kariyer Programları",
+    headline: "Atölye ve kariyer programlarıyla geleceğe hazırlık.",
     intro:
-      "Atölyelerimiz öğrencilerin belirli bir beceriyi deneyerek öğrenmesini sağlar. Her atölye pratik üretim ve görünür çıktı üzerine kurulur.",
-    ctaLabel: "Atölye İçin İletişime Geç",
+      "Öğrencilerin okul dışı zamanlarını ulusal ve uluslararası kariyerleri bakımından değerli kılan programlar.",
+    ctaLabel: "Program İçin İletişime Geç",
   },
   gallery: {
     eyebrow: "Kampüsten",
@@ -284,50 +1157,7 @@ const content = {
     highlightBanner:
       "Bizim çok güçlü tesis ve olanaklarımız var. Gelin yaz okulu kapsamında buraya gezi düzenleyin.",
     highlightCta: "Bilgi Al →",
-    items: [
-      {
-        slug: "macera-parki",
-        name: "Macera Parkı",
-        grades: "Açık Alan",
-        img: "",
-        text: "Tırmanma, denge ve cesaret rotaları — fiziksel zekanın açık havadaki sınıfı.",
-        summary: "Tırmanma, denge ve hareket üzerinden özgüven geliştiren açık alan.",
-        detailTitle: "Hareket, cesaret ve takım desteği için tasarlanmış parkur alanı.",
-        detailBody:
-          "Macera Parkı öğrencilerin fiziksel farkındalık, denge, cesaret ve takım desteğini deneyimlediği açık alanlardan biridir.",
-        features: ["Tırmanma", "Denge rotaları", "Takım görevleri", "Açık alan etkinlikleri"],
-        gallery: [],
-        ctaLabel: "Ziyaret Bilgisi Al",
-      },
-      {
-        slug: "tarim-atolye-serasi",
-        name: "Tarım & Atölye Serası",
-        grades: "Yıl Boyu",
-        img: "",
-        text: "Tohumdan hasada, atölyeden mutfağa. Üretmenin ve dönüştürmenin canlı laboratuvarı.",
-        summary: "Üretim, gözlem ve sürdürülebilirlik çalışmalarına ayrılmış canlı öğrenme alanı.",
-        detailTitle: "Tohumdan ürüne uzanan canlı laboratuvar.",
-        detailBody:
-          "Tarım & Atölye Serası, öğrencilerin doğa döngülerini gözlemlediği ve üretim süreçlerini deneyimlediği bir uygulama alanıdır.",
-        features: ["Tohum çalışmaları", "Gözlem", "Üretim", "Sürdürülebilirlik"],
-        gallery: [],
-        ctaLabel: "Ziyaret Bilgisi Al",
-      },
-      {
-        slug: "orman-survival-alani",
-        name: "Orman Survival Alanı",
-        grades: "Doğa",
-        img: "",
-        text: "İz sürme, sığınak kurma, takım kararları — doğanın öğrettiği liderlik dersleri.",
-        summary: "Doğa içinde karar verme, yön bulma ve takım çalışması deneyimleri.",
-        detailTitle: "Doğanın içinde problem çözme ve liderlik pratiği.",
-        detailBody:
-          "Orman Survival Alanı; iz sürme, yön bulma ve takım kararları gibi etkinliklerle öğrencilerin doğa farkındalığını güçlendirir.",
-        features: ["Yön bulma", "Takım kararları", "Doğa farkındalığı", "Görev akışları"],
-        gallery: [],
-        ctaLabel: "Ziyaret Bilgisi Al",
-      },
-    ],
+    items: facilities.map(toVenue),
   },
   venuesPage: {
     eyebrow: "Mekanlar",
