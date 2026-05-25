@@ -14,9 +14,11 @@
     "apply:pocketbase-rules": "node scripts/apply-pocketbase-rules.mjs",
     "seed:pocketbase": "node scripts/seed-pocketbase.mjs",
     "validate:pocketbase": "node scripts/validate-pocketbase.mjs",
-    "preview": "vite preview",
+    "preview": "bun run build && wrangler dev",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": "bun run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -74,6 +76,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.38.0",
     "@eslint/js": "^9.32.0",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
