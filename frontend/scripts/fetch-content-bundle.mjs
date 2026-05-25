@@ -18,14 +18,15 @@ const POCKETBASE_SUPERUSER_PASSWORD =
 console.log("🔍 DEBUG: Available env keys:", Object.keys(process.env).filter(k => k.includes("POCKET")).join(", "));
 
 if (!POCKETBASE_URL) {
-  console.error("❌ Missing POCKETBASE_URL or VITE_POCKETBASE_URL.");
-  console.error("   Set them in Cloudflare Dashboard → Workers & Pages → mogan-kampus → Settings → Environment variables");
-  process.exit(1);
+  console.warn("⚠️  Missing POCKETBASE_URL — writing empty content bundle and continuing.");
+  writeEmptyBundle();
+  process.exit(0);
 }
 
 if (!POCKETBASE_SUPERUSER_EMAIL || !POCKETBASE_SUPERUSER_PASSWORD) {
-  console.error("❌ Missing PocketBase superuser credentials.");
-  process.exit(1);
+  console.warn("⚠️  Missing PocketBase superuser credentials — writing empty content bundle and continuing.");
+  writeEmptyBundle();
+  process.exit(0);
 }
 
 async function main() {
@@ -49,13 +50,7 @@ async function main() {
     }
   }
 
-  const outPath = resolve(
-    dirname(fileURLToPath(import.meta.url)),
-    "..",
-    "src",
-    "lib",
-    "content-bundle.json",
-  );
+  const outPath = getBundlePath();
   writeFileSync(outPath, JSON.stringify(map, null, 2));
 
   console.log(
@@ -65,7 +60,24 @@ async function main() {
   pb.authStore.clear();
 }
 
+function getBundlePath() {
+  return resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "src",
+    "lib",
+    "content-bundle.json",
+  );
+}
+
+function writeEmptyBundle() {
+  const outPath = getBundlePath();
+  writeFileSync(outPath, "{}");
+  console.log("   Wrote empty content bundle to src/lib/content-bundle.json");
+}
+
 main().catch((err) => {
   console.error("❌ Failed to fetch content bundle:", err.message);
-  process.exit(1);
+  console.warn("⚠️  Writing empty content bundle and continuing.");
+  writeEmptyBundle();
 });
