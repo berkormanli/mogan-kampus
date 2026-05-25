@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 import type { SiteContent } from "@/lib/site-content.defaults";
 import logoPng from "@/assets/logo.png";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type HeaderTheme = {
   background: string;
@@ -315,6 +318,39 @@ export function UtilityBar({ content }: { content: SiteContent["utility"] }) {
 export function Nav({ content }: { content: SiteContent["nav"] }) {
   const theme = useActiveHeaderTheme();
   const isDark = theme.tone === "dark";
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = (
+    <>
+      <Link to="/hakkinda" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+        Hakkında
+      </Link>
+      <Link to="/programlar" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+        Programlar
+      </Link>
+      <Link to="/atolyeler" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+        Atölyeler
+      </Link>
+      <Link to="/mekanlar" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+        Mekanlar
+      </Link>
+      <Link to="/iletisim" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+        İletişim
+      </Link>
+      <Link
+        to="/iletisim"
+        className={`px-4 py-2 transition ${
+          isDark
+            ? "bg-accent text-accent-foreground hover:bg-cream hover:text-primary"
+            : "bg-primary text-primary-foreground hover:bg-accent"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        Bilgi Al
+      </Link>
+    </>
+  );
 
   return (
     <header
@@ -352,33 +388,35 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
             isDark ? "text-cream/80" : "text-foreground/80"
           }`}
         >
-          <Link to="/hakkinda" className="hover:text-accent transition">
-            Hakkında
-          </Link>
-          <Link to="/programlar" className="hover:text-accent transition">
-            Programlar
-          </Link>
-          <Link to="/atolyeler" className="hover:text-accent transition">
-            Atölyeler
-          </Link>
-          <Link to="/mekanlar" className="hover:text-accent transition">
-            Mekanlar
-          </Link>
-          <Link to="/iletisim" className="hover:text-accent transition">
-            İletişim
-          </Link>
-          <Link
-            to="/iletisim"
-            className={`px-4 py-2 transition ${
-              isDark
-                ? "bg-accent text-accent-foreground hover:bg-cream hover:text-primary"
-                : "bg-primary text-primary-foreground hover:bg-accent"
-            }`}
-          >
-            Bilgi Al
-          </Link>
+          {navLinks}
         </nav>
+        {isMobile && (
+          <button
+            type="button"
+            aria-label="Menüyü aç"
+            className="md:hidden p-2 rounded-md transition hover:opacity-80"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        )}
       </div>
+      {isMobile && (
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent
+            side="right"
+            className={`w-3/4 sm:max-w-sm ${isDark ? "bg-ink text-cream" : "bg-background text-foreground"}`}
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Navigasyon Menüsü</SheetTitle>
+              <SheetDescription>Mobil navigasyon menüsü</SheetDescription>
+            </SheetHeader>
+            <nav className={`flex flex-col gap-6 text-sm tracking-wider uppercase pt-8 ${isDark ? "text-cream/80" : "text-foreground/80"}`}>
+              {navLinks}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      )}
     </header>
   );
 }
