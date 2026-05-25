@@ -1,11 +1,7 @@
 import PocketBase from "pocketbase";
 
 function createPocketBaseClient() {
-  const url = import.meta.env.VITE_POCKETBASE_URL || process.env.POCKETBASE_URL;
-
-  if (!url) {
-    throw new Error("Missing PocketBase environment variable: VITE_POCKETBASE_URL");
-  }
+  const url = import.meta.env.VITE_POCKETBASE_URL || "https://pocketbase.berkormanli.com";
 
   return new PocketBase(url);
 }
