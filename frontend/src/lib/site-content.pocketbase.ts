@@ -48,11 +48,16 @@ function pickFooterKeys(data: unknown): Record<string, unknown> {
 }
 
 export async function updateSiteContentClient(key: string, data: unknown) {
-  const payload = {
+  const userId = pb.authStore.record?.id;
+  const payload: Record<string, unknown> = {
     key,
     data,
-    updatedBy: pb.authStore.record?.id ?? "",
   };
+  // Only include updatedBy when we have a valid user ID.
+  // An empty string is not a valid relation reference and causes PocketBase to return 400.
+  if (userId) {
+    payload.updatedBy = userId;
+  }
 
   try {
     const existing = await pb
