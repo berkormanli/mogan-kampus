@@ -40,7 +40,7 @@ function Home() {
 
   return (
     <SiteChrome content={content}>
-      {/* <HomeHeroSection content={content.hero} /> */}
+      <HomeHeroSection content={content.hero} />
       <HomeVenuesSection content={content.venues} />
       <HomeProgramsSection content={content.programs} />
       <HomeStatsSection content={content.stats} />
