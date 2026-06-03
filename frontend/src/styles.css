@@ -91,8 +91,11 @@
   html,
   body {
     height: 100%;
-    scroll-padding-top: 0;
-    scroll-snap-type: none;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+    scroll-snap-type: y proximity;
   }
   * {
     border-color: var(--color-border);
@@ -103,9 +106,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  body[data-site-scroll-shell="ready"] {
-    overflow: hidden;
-  }
   h1,
   h2,
   h3 {
@@ -113,16 +113,12 @@
     letter-spacing: -0.01em;
   }
   main[data-site-shell] {
-    height: 100dvh;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    scrollbar-gutter: stable;
+    min-height: 100svh;
   }
   main[data-site-shell] > section {
-    min-height: calc(100dvh - 4.5rem);
-  }
-  main[data-site-shell] > section[data-compact-hero="true"] {
-    min-height: auto;
+    scroll-margin-top: 4.5rem;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
   html[data-section-animations="ready"] main[data-site-shell] > section {
     opacity: 0;
@@ -132,7 +128,9 @@
       transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
-  html[data-section-animations="ready"] main[data-site-shell] > section[data-section-visible="true"] {
+  html[data-section-animations="ready"]
+    main[data-site-shell]
+    > section[data-section-visible="true"] {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }

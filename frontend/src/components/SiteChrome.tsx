@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
 import type { SiteContent } from "@/lib/site-content.defaults";
 import logoPng from "@/assets/logo.png";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type HeaderTheme = {
@@ -51,9 +57,7 @@ function useActiveHeaderTheme() {
       frame = 0;
       const nav = document.querySelector<HTMLElement>("[data-site-nav]");
       const sampleY = (nav?.getBoundingClientRect().bottom || 80) + 1;
-      const sections = Array.from(
-        shell.querySelectorAll<HTMLElement>(":scope > section"),
-      );
+      const sections = Array.from(shell.querySelectorAll<HTMLElement>(":scope > section"));
       let activeSection = sections[0];
 
       for (const section of sections) {
@@ -83,12 +87,12 @@ function useActiveHeaderTheme() {
     };
 
     scheduleUpdate();
-    shell.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
-      shell.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
     };
   }, []);
@@ -105,10 +109,12 @@ function useSectionScrollEffects() {
 
     if (!sections.length) return;
 
-    document.body.dataset.siteScrollShell = "ready";
     document.documentElement.dataset.sectionAnimations = "ready";
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(max-width: 767px)").matches
+    ) {
       sections.forEach((section) => {
         section.dataset.sectionVisible = "true";
       });
@@ -128,7 +134,7 @@ function useSectionScrollEffects() {
         });
       },
       {
-        root: shell,
+        root: null,
         threshold: 0.18,
         rootMargin: "-10% 0px -20% 0px",
       },
@@ -136,7 +142,7 @@ function useSectionScrollEffects() {
 
     sections.forEach((section, index) => {
       section.dataset.sectionIndex = String(index);
-      if (index === 0) {
+      if (index <= 1) {
         section.dataset.sectionVisible = "true";
         revealed.add(section);
       }
@@ -145,7 +151,6 @@ function useSectionScrollEffects() {
 
     return () => {
       observer.disconnect();
-      delete document.body.dataset.siteScrollShell;
       delete document.documentElement.dataset.sectionAnimations;
     };
   }, []);
@@ -154,135 +159,96 @@ function useSectionScrollEffects() {
 function useScrollSnapToSections() {
   useEffect(() => {
     const shell = document.querySelector<HTMLElement>("main[data-site-shell]");
-    if (!shell) {
-      console.log("[snap] no shell found");
-      return;
-    }
-
-    console.log("[snap] hook mounted, shell found");
+    if (!shell) return;
 
     let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
     let isSnapping = false;
+    let lastScrollY = window.scrollY;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const getNavHeight = () => {
       const nav = document.querySelector<HTMLElement>("[data-site-nav]");
-      const h = nav?.getBoundingClientRect().height || 72;
-      return h;
+      return nav?.getBoundingClientRect().height || 72;
     };
 
-    const getSectionTop = (section: HTMLElement) => {
-      const shellRect = shell.getBoundingClientRect();
-      const sectionRect = section.getBoundingClientRect();
-      return sectionRect.top - shellRect.top + shell.scrollTop;
-    };
+    const getTargetTop = (section: HTMLElement) =>
+      window.scrollY + section.getBoundingClientRect().top - getNavHeight();
 
-    const snapToNearestSection = (source: string) => {
-      console.log(`[snap] called from ${source}`);
+    const snapToNearestSection = () => {
       const sections = Array.from(shell.querySelectorAll<HTMLElement>(":scope > section"));
-      console.log(`[snap] found ${sections.length} sections`);
       if (!sections.length) return;
 
-      const scrollTop = shell.scrollTop;
-      const viewportHeight = shell.clientHeight;
-      const snapThreshold = viewportHeight * 0.5;
-      const navHeight = getNavHeight();
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const snapThreshold = Math.min(viewportHeight * 0.42, 360);
+      const sampleY = getNavHeight() + 1;
+      const direction = scrollY >= lastScrollY ? 1 : -1;
+      lastScrollY = scrollY;
 
-      console.log(`[snap] scrollTop=${scrollTop}, viewportHeight=${viewportHeight}, navHeight=${navHeight}, threshold=${snapThreshold}`);
-
-      // Allow free scrolling when more than half the viewport is already the
-      // current section — prevents snapping back inside tall sections.
-      const shellRect = shell.getBoundingClientRect();
-      const sampleY = shellRect.top + navHeight + 1;
-      let dominantSectionFillsViewport = false;
-
+      let activeSectionAllowsFreeScroll = false;
+      let activeSectionIndex = 0;
       for (const section of sections) {
         const rect = section.getBoundingClientRect();
         if (rect.top <= sampleY && rect.bottom > sampleY) {
-          const visibleTop = Math.max(rect.top, shellRect.top);
-          const visibleBottom = Math.min(rect.bottom, shellRect.bottom);
-          const visibleHeight = visibleBottom - visibleTop;
-          if (visibleHeight > viewportHeight * 0.5) {
-            dominantSectionFillsViewport = true;
-          }
+          const visibleTop = Math.max(rect.top, 0);
+          const visibleBottom = Math.min(rect.bottom, viewportHeight);
+          activeSectionAllowsFreeScroll = visibleBottom - visibleTop > viewportHeight * 0.55;
+          activeSectionIndex = sections.indexOf(section);
           break;
         }
       }
 
-      if (dominantSectionFillsViewport) {
-        console.log(`[snap] -> SKIPPED (dominant section fills >50% of viewport — free scroll)`);
-        return;
-      }
+      if (activeSectionAllowsFreeScroll) return;
 
-      // If two sections are roughly equally visible (neither dominates the
-      // viewport), snap to the closer one only when it's reasonably near.
-      let closestSection: HTMLElement | null = null;
-      let closestDistance = Infinity;
+      const candidateIndexes =
+        direction > 0
+          ? [activeSectionIndex + 1, activeSectionIndex]
+          : [activeSectionIndex, activeSectionIndex - 1];
 
-      for (const section of sections) {
-        const rawTop = getSectionTop(section);
-        const sectionTop = rawTop - navHeight;
-        const distance = Math.abs(scrollTop - sectionTop);
+      let targetSection: HTMLElement | null = null;
+      let targetDistance = Infinity;
 
-        console.log(`[snap] section id=${section.id || "no-id"} rawTop=${rawTop} sectionTop=${sectionTop} distance=${distance}`);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestSection = section;
+      for (const index of candidateIndexes) {
+        const section = sections[index];
+        if (!section) continue;
+        const distance = Math.abs(scrollY - getTargetTop(section));
+        if (distance < targetDistance) {
+          targetDistance = distance;
+          targetSection = section;
         }
       }
 
-      console.log(`[snap] closestSection=${closestSection?.id || closestSection?.tagName || "null"}, closestDistance=${closestDistance}`);
+      if (!targetSection || targetDistance <= 16 || targetDistance >= snapThreshold) return;
 
-      if (
-        closestSection &&
-        closestDistance < snapThreshold &&
-        closestDistance > 20
-      ) {
-        console.log(`[snap] -> WILL SNAP to ${closestSection.id || "no-id"}`);
-        isSnapping = true;
-        const targetTop = getSectionTop(closestSection) - navHeight;
-        console.log(`[snap] scrollTo({ top: ${targetTop}, behavior: "smooth" })`);
-        shell.scrollTo({
-          top: targetTop,
-          behavior: "smooth",
-        });
-        setTimeout(() => {
-          console.log("[snap] isSnapping reset to false");
+      isSnapping = true;
+      window.scrollTo({
+        top: getTargetTop(targetSection),
+        behavior: reduceMotion.matches ? "auto" : "smooth",
+      });
+      window.setTimeout(
+        () => {
           isSnapping = false;
-        }, 1000);
-      } else {
-        console.log(`[snap] -> SKIPPED (threshold check failed)`);
-      }
+        },
+        reduceMotion.matches ? 0 : 700,
+      );
     };
 
     const onScrollEnd = () => {
-      if (isSnapping) {
-        console.log("[snap] scrollend fired while isSnapping=true, ignoring");
-        return;
-      }
-      console.log("[snap] scrollend event");
-      snapToNearestSection("scrollend");
+      if (!isSnapping) snapToNearestSection();
     };
 
     const onScroll = () => {
-      if (isSnapping) {
-        console.log("[snap] scroll event while isSnapping=true, ignoring");
-        return;
-      }
-      console.log("[snap] scroll event, scheduling debounce");
+      if (isSnapping) return;
       if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => snapToNearestSection("debounce"), 350);
+      scrollTimeout = setTimeout(snapToNearestSection, 250);
     };
 
-    shell.addEventListener("scrollend", onScrollEnd);
-    shell.addEventListener("scroll", onScroll, { passive: true });
-
-    console.log("[snap] listeners attached");
+    window.addEventListener("scrollend", onScrollEnd);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      console.log("[snap] hook cleanup");
-      shell.removeEventListener("scrollend", onScrollEnd);
-      shell.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", onScrollEnd);
+      window.removeEventListener("scroll", onScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, []);
@@ -323,19 +289,39 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
 
   const navLinks = (
     <>
-      <Link to="/hakkinda" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+      <Link
+        to="/hakkinda"
+        className="hover:text-accent transition"
+        onClick={() => setMobileMenuOpen(false)}
+      >
         Hakkında
       </Link>
-      <Link to="/programlar" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+      <Link
+        to="/programlar"
+        className="hover:text-accent transition"
+        onClick={() => setMobileMenuOpen(false)}
+      >
         Programlar
       </Link>
-      <Link to="/atolyeler" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+      <Link
+        to="/atolyeler"
+        className="hover:text-accent transition"
+        onClick={() => setMobileMenuOpen(false)}
+      >
         Atölyeler
       </Link>
-      <Link to="/mekanlar" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+      <Link
+        to="/mekanlar"
+        className="hover:text-accent transition"
+        onClick={() => setMobileMenuOpen(false)}
+      >
         Mekanlar
       </Link>
-      <Link to="/iletisim" className="hover:text-accent transition" onClick={() => setMobileMenuOpen(false)}>
+      <Link
+        to="/iletisim"
+        className="hover:text-accent transition"
+        onClick={() => setMobileMenuOpen(false)}
+      >
         İletişim
       </Link>
       <Link
@@ -362,11 +348,7 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src={logoPng}
-            alt="Mogan Kampüs"
-            className="h-14 w-auto"
-          />
+          <img src={logoPng} alt="Mogan Kampüs" className="h-14 w-auto" />
           <span
             className={`font-serif text-lg md:text-xl leading-tight transition-colors duration-300 ${
               isDark ? "text-cream" : "text-primary"
@@ -411,7 +393,9 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
               <SheetTitle>Navigasyon Menüsü</SheetTitle>
               <SheetDescription>Mobil navigasyon menüsü</SheetDescription>
             </SheetHeader>
-            <nav className={`flex flex-col gap-6 text-sm tracking-wider uppercase pt-8 ${isDark ? "text-cream/80" : "text-foreground/80"}`}>
+            <nav
+              className={`flex flex-col gap-6 text-sm tracking-wider uppercase pt-8 ${isDark ? "text-cream/80" : "text-foreground/80"}`}
+            >
               {navLinks}
             </nav>
           </SheetContent>

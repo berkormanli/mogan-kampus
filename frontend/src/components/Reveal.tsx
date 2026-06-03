@@ -29,7 +29,8 @@ export function Reveal({
     }
     if (
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        window.matchMedia("(max-width: 767px)").matches)
     ) {
       setVisible(true);
       return;
@@ -47,7 +48,7 @@ export function Reveal({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [isPreview]);
 
   const Component = Tag as React.ElementType;
   return (
