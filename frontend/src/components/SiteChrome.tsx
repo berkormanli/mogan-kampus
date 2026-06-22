@@ -200,6 +200,10 @@ function useScrollSnapToSections() {
 
       if (activeSectionAllowsFreeScroll) return;
 
+      // Prevent snapping away from UtilityBar when the user is near the top
+      // of the page, keeping the UtilityBar visible at the first section.
+      if (activeSectionIndex === 0 && scrollY < viewportHeight * 0.4) return;
+
       const candidateIndexes =
         direction > 0
           ? [activeSectionIndex + 1, activeSectionIndex]
@@ -257,6 +261,7 @@ function useScrollSnapToSections() {
 export function UtilityBar({ content }: { content: SiteContent["utility"] }) {
   return (
     <div
+      data-utility-bar=""
       className="text-cream text-xs md:text-sm"
       style={{ background: "var(--ink)", color: "var(--cream)" }}
     >
@@ -350,18 +355,18 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
         <Link to="/" className="flex items-center gap-3">
           <img src={logoPng} alt="Mogan Kampüs" className="h-14 w-auto" />
           <span
-            className={`font-serif text-lg md:text-xl leading-tight transition-colors duration-300 ${
+            className={`flex flex-col font-serif text-lg leading-tight transition-colors duration-300 md:text-xl ${
               isDark ? "text-cream" : "text-primary"
             }`}
           >
-            {content.brand}
-            <br className="hidden md:block" />
+            <span>{content.brand}</span>
+            <span>{content.kicker}</span>
             <span
-              className={`text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
+              className={`whitespace-nowrap text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
                 isDark ? "text-cream/60" : "text-muted-foreground"
               }`}
             >
-              {content.kicker}
+              Bir Eğitim Kampüsü
             </span>
           </span>
         </Link>

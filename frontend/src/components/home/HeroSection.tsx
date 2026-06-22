@@ -2,6 +2,12 @@ import { Link } from "@tanstack/react-router";
 import portraitImg from "@/assets/value-kindness.jpg";
 import { type SiteContent } from "@/lib/site-content.defaults";
 
+const headlineLines = [
+  { key: "headlineBefore", className: "text-[#8bd34a]" },
+  { key: "headlineAccent", className: "text-[#29a9ee]" },
+  { key: "headlineAfter", className: "text-[#f5a400]" },
+] as const;
+
 export function HomeHeroSection({ content }: { content: SiteContent["hero"] }) {
   return (
     <section
@@ -39,16 +45,18 @@ export function HomeHeroSection({ content }: { content: SiteContent["hero"] }) {
         className="absolute inset-0 bg-[linear-gradient(0deg,rgba(13,22,34,0.45)_0%,rgba(13,22,34,0.06)_42%,rgba(13,22,34,0.28)_100%)]"
       />
 
-      <div className="relative z-10 mx-auto flex min-h-[86svh] max-w-7xl items-center px-6 py-16 md:min-h-[calc(100dvh-7.75rem)] md:px-12 lg:px-16">
-        <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(280px,0.45fr)]">
-          <div className="max-w-3xl pt-10 md:pt-0">
-            <p className="mb-5 inline-flex rounded-full border border-cream/20 bg-cream/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-accent backdrop-blur">
+      <div className="relative z-10 mx-auto flex min-h-[86svh] max-w-[92rem] items-center px-6 py-16 md:min-h-[calc(100dvh-7.75rem)] md:px-12 lg:px-16">
+        <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.56fr)]">
+          <div className="max-w-4xl pt-10 md:pt-0">
+            <p className="mb-10 inline-flex rounded-full border border-cream/20 bg-cream/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-accent backdrop-blur md:mb-14">
               {content.eyebrow}
             </p>
-            <h1 className="max-w-3xl text-balance text-5xl font-bold leading-[0.95] text-cream drop-shadow-sm md:text-7xl lg:text-8xl">
-              {content.headlineBefore}{" "}
-              <span className="text-accent">{content.headlineAccent}</span>{" "}
-              {content.headlineAfter}
+            <h1 className="font-display flex max-w-4xl flex-col gap-4 text-6xl font-black uppercase leading-[0.95] tracking-normal [word-spacing:0.5em] drop-shadow-[0_4px_14px_rgba(0,0,0,0.28)] md:gap-6 md:text-8xl lg:text-[8.8rem]">
+              {headlineLines.map(({ key, className }) => (
+                <span key={key} className={`block ${className}`}>
+                  {content[key]}
+                </span>
+              ))}
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-cream/86 md:text-xl md:leading-9">
               {content.body}
@@ -70,7 +78,7 @@ export function HomeHeroSection({ content }: { content: SiteContent["hero"] }) {
           </div>
 
           <div className="hidden lg:flex justify-end">
-            <div className="relative aspect-[4/5] w-full max-w-[340px] overflow-hidden rounded-xl border border-cream/16 bg-cream/10 shadow-2xl shadow-black/30">
+            <div className="relative aspect-[4/5] w-full max-w-[430px] overflow-hidden rounded-lg border border-cream/16 bg-cream/10 shadow-2xl shadow-black/30">
               <img
                 src={portraitImg}
                 alt="Mogan Kampüs'te gülümseyen çocuklar"

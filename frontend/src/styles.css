@@ -115,6 +115,9 @@
   main[data-site-shell] {
     min-height: 100svh;
   }
+  [data-utility-bar] {
+    scroll-snap-align: start;
+  }
   main[data-site-shell] > section {
     scroll-margin-top: 4.5rem;
     scroll-snap-align: start;

@@ -211,9 +211,9 @@ export const defaultSiteContent: SiteContent = {
   },
   hero: {
     eyebrow: "Mutlu Çocuklar, İlham Veren Eğitim",
-    headlineBefore: "Doğanın İçinde",
-    headlineAccent: "Mutlu",
-    headlineAfter: "Bir Kampüs",
+    headlineBefore: "Doğa",
+    headlineAccent: "Bilim",
+    headlineAfter: "Sanat",
     body: "Mogan Gölü kıyısında, çocukların keşfederek öğrendiği, özgürce geliştiği ve mutlulukla büyüdüğü modern bir eğitim kampüsü.",
     cta: "Bilgi Al",
     imageUrl: heroImg,
