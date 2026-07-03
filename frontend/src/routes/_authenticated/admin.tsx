@@ -6,6 +6,7 @@ import {
   getSiteContentClient,
   listAdminUsersClient,
   signOutAdmin,
+  triggerDeployClient,
   updateSiteContentClient,
   uploadSiteImageClient,
 } from "@/lib/site-content.pocketbase";
@@ -51,11 +52,15 @@ const SECTIONS: { key: keyof SiteContent; label: string }[] = [
   { key: "hero", label: "Hero" },
   { key: "about", label: "Hakkımızda" },
   { key: "aboutPage", label: "Hakkımızda sayfası" },
+  { key: "yazOkulu", label: "Yaz Okulu" },
+  { key: "educereAtolyeleri", label: "Educere Atölyeleri" },
+  { key: "okulGezileri", label: "Okul Gezileri" },
+  { key: "etkinlikler", label: "Etkinlikler" },
   { key: "programs", label: "Programlar" },
   { key: "programsPage", label: "Programlar sayfası" },
   { key: "stats", label: "İstatistikler" },
-  { key: "workshops", label: "Atölyeler" },
-  { key: "workshopsPage", label: "Atölyeler sayfası" },
+  { key: "workshops", label: "Öne Çıkan Atölyeler" },
+  { key: "workshopsPage", label: "Öne Çıkan Atölyeler sayfası" },
   { key: "gallery", label: "Galeri" },
   { key: "venues", label: "Mekanlar" },
   { key: "venuesPage", label: "Mekanlar sayfası" },
@@ -63,6 +68,7 @@ const SECTIONS: { key: keyof SiteContent; label: string }[] = [
   { key: "contact", label: "İletişim + alt bilgi" },
   { key: "contactPage", label: "İletişim sayfası" },
   { key: "faqs", label: "SSS" },
+  { key: "deployConfig", label: "Yayınlama" },
   { key: "footer", label: "Alt bilgi" },
 ];
 
@@ -70,7 +76,7 @@ function AdminPage() {
   const { data: content } = useSuspenseQuery(contentQuery);
   const navigate = useNavigate();
   const [activeKey, setActiveKey] = useState<keyof SiteContent>("hero");
-  const [tab, setTab] = useState<"content" | "users" | "preregistrations">("content");
+  const [tab, setTab] = useState<"content" | "deploy" | "users" | "preregistrations">("content");
   const [liveSectionValue, setLiveSectionValue] = useState<unknown>(
     content["hero"] ?? defaultSiteContent["hero"],
   );
@@ -97,12 +103,22 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-secondary">
-      <header className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between">
+      <header className="bg-primary text-primary-foreground px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
         <div className="font-serif text-lg">Mogan Kampüs Admin</div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-4 text-sm flex-wrap">
           <a href="/" className="opacity-80 hover:opacity-100">
             Siteyi görüntüle →
           </a>
+          <button
+            type="button"
+            onClick={() => {
+              setTab("deploy");
+              setActiveKey("deployConfig");
+            }}
+            className="border border-primary-foreground/40 px-3 py-1.5 hover:bg-accent hover:border-accent transition uppercase tracking-widest text-xs flex items-center gap-2"
+          >
+            <span aria-hidden>🚀</span> Yayınla
+          </button>
           <button
             onClick={() => {
               signOutAdmin();
@@ -118,6 +134,9 @@ function AdminPage() {
       <div className="px-6 pt-6 flex gap-2 border-b border-border bg-card">
         <TabBtn active={tab === "content"} onClick={() => setTab("content")}>
           İçerik
+        </TabBtn>
+        <TabBtn active={tab === "deploy"} onClick={() => setTab("deploy")}>
+          Yayınlama
         </TabBtn>
         <TabBtn active={tab === "users"} onClick={() => setTab("users")}>
           Yöneticiler
@@ -158,6 +177,8 @@ function AdminPage() {
             )}
           </aside>
         </div>
+      ) : tab === "deploy" ? (
+        <DeployPanel setTab={setTab} setActiveKey={setActiveKey} />
       ) : tab === "users" ? (
         <UsersPanel />
       ) : (
@@ -579,6 +600,273 @@ function ImageField({
 
       {err && <p className="text-xs text-destructive">{err}</p>}
     </div>
+  );
+}
+
+function DeployPanel({
+  setTab,
+  setActiveKey,
+}: {
+  setTab: (tab: "content" | "deploy" | "users" | "preregistrations") => void;
+  setActiveKey: (key: keyof SiteContent) => void;
+}) {
+  const navigate = useNavigate();
+  const { data } = useSuspenseQuery(contentQuery);
+  const qc = useQueryClient();
+  const content = mergeSiteContent(data);
+  const deployConfig = content.deployConfig ?? defaultSiteContent.deployConfig;
+  const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
+    null,
+  );
+  const [pendingState, setPendingState] = useState<{
+    at: string;
+    who: string;
+  } | null>(null);
+
+  async function handlePublish() {
+    if (busy) return;
+    setBusy(true);
+    setToast(null);
+    try {
+      const result = await triggerDeployClient();
+      setPendingState({ at: result.triggeredAt, who: result.triggeredBy });
+      setToast({ kind: "ok", text: result.message });
+      // Refresh content query so deployConfig reflects latest server state.
+      await qc.invalidateQueries({ queryKey: ["site-content"] });
+    } catch (err: unknown) {
+      setToast({
+        kind: "err",
+        text: errorMessage(err, "Yayınlama isteği gönderilemedi."),
+      });
+    } finally {
+      setBusy(false);
+      setTimeout(() => setToast(null), 6000);
+    }
+  }
+
+  const lastDeployAt = deployConfig.lastDeployAt;
+  const lastDeployStatus = deployConfig.lastDeployStatus;
+  const lastDeployTrigger = deployConfig.lastDeployTrigger;
+  const lastDeployMessage = deployConfig.lastDeployMessage;
+
+  return (
+    <main className="p-6 md:p-10 max-w-5xl">
+      <h2 className="font-serif text-3xl text-primary mb-2">Yayınlama</h2>
+      <p className="text-sm text-muted-foreground mb-8">
+        PocketBase üzerinde <code>pb_hooks/main.pb.js</code> çalışıyor. Bir
+        içerik kaydettiğinizde ya da bu sayfadaki tuşa bastığınızda, PocketBase
+        Cloudflare Pages Deploy Hook'una POST atar ve Cloudflare yeniden build
+        + deploy yapar. Yapılandırma detayları için <code>CLOUDFLARE_DEPLOYMENT.md</code>
+        dosyasına bakın.
+      </p>
+
+      <section className="border border-border bg-card p-6 md:p-8 mb-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Manuel Yayınla
+            </p>
+            <h3 className="font-serif text-2xl text-primary">
+              Cloudflare Pages'i şimdi yeniden derle
+            </h3>
+          </div>
+          <button
+            type="button"
+            onClick={handlePublish}
+            disabled={busy}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-7 py-3 text-sm font-bold uppercase tracking-[0.16em] text-primary-foreground transition hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span aria-hidden>🚀</span>
+            {busy ? "Gönderiliyor…" : "Şimdi Yayınla"}
+          </button>
+        </div>
+        {toast && (
+          <div
+            role="status"
+            className={`mb-6 border px-4 py-3 text-sm ${
+              toast.kind === "ok"
+                ? "border-accent/40 bg-accent/10 text-primary"
+                : "border-destructive/40 bg-destructive/10 text-destructive"
+            }`}
+          >
+            {toast.text}
+          </div>
+        )}
+        <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Son Yayınlama
+            </dt>
+            <dd className="text-primary font-medium">
+              {lastDeployAt
+                ? new Date(lastDeployAt).toLocaleString("tr-TR")
+                : "Henüz yayınlama yapılmadı"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Tetikleyen
+            </dt>
+            <dd className="text-primary font-medium">
+              {lastDeployTrigger || "—"}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Durum
+            </dt>
+            <dd>
+              <DeployStatusBadge status={lastDeployStatus} />
+              {pendingState && (
+                <span className="ml-3 text-xs text-muted-foreground">
+                  Şu anda sırada: {pendingState.who} ·{" "}
+                  {new Date(pendingState.at).toLocaleTimeString("tr-TR")}
+                </span>
+              )}
+            </dd>
+          </div>
+          {lastDeployMessage && (
+            <div className="sm:col-span-2">
+              <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                Sunucu Mesajı
+              </dt>
+              <dd className="text-foreground/75 leading-relaxed text-sm">
+                {lastDeployMessage}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </section>
+
+      <section className="border border-border bg-card p-6 md:p-8 mb-8">
+        <h3 className="font-serif text-xl text-primary mb-3">
+          Yapılandırma
+        </h3>
+        <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm mb-6">
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Otomatik Yayınlama
+            </dt>
+            <dd>
+              <DeployStatusBadge
+                status={deployConfig.enabled ? "success" : "idle"}
+                label={deployConfig.enabled ? "Etkin" : "Devre dışı"}
+              />
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+              Deploy Hook URL (sunucu)
+            </dt>
+            <dd className="text-foreground/75 leading-relaxed text-sm">
+              {deployConfig.webhookUrl ? (
+                <code className="break-all bg-secondary px-2 py-1">
+                  {deployConfig.webhookUrl}
+                </code>
+              ) : (
+                <span className="text-muted-foreground">
+                  PocketBase sunucusundaki{" "}
+                  <code>CF_PAGES_DEPLOY_HOOK_URL</code> ortam değişkeni
+                  kullanılıyor. URL'i buraya yazmak yalnızca referans içindir;
+                  asıl POST PocketBase tarafında gerçekleşir.
+                </span>
+              )}
+            </dd>
+          </div>
+        </dl>
+        {deployConfig.webhookUrlNote && (
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {deployConfig.webhookUrlNote}
+          </p>
+        )}
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setTab("content");
+              setActiveKey("deployConfig");
+            }}
+            className="border border-primary text-primary px-4 py-2 text-xs uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition"
+          >
+            Yayınlama ayarlarını düzenle
+          </button>
+          <a
+            href="https://dash.cloudflare.com/?to=/:account/pages"
+            target="_blank"
+            rel="noreferrer"
+            className="border border-border px-4 py-2 text-xs uppercase tracking-widest text-foreground/75 hover:text-primary hover:border-primary transition"
+          >
+            Cloudflare Dashboard'u aç ↗
+          </a>
+        </div>
+      </section>
+
+      <section className="border border-border bg-secondary/50 p-6 md:p-8 text-sm text-foreground/75">
+        <h3 className="font-serif text-lg text-primary mb-3">
+          Akış nasıl çalışır?
+        </h3>
+        <ol className="space-y-2 list-decimal pl-5">
+          <li>
+            Admin panelinde bir içerik kaydettiğinizde PocketBase{" "}
+            <code>site_content</code> koleksiyonu güncellenir.
+          </li>
+          <li>
+            Sunucudaki <code>pb_hooks/main.pb.js</code> 5 saniyelik debounce
+            penceresinde değişiklikleri toplar ve Cloudflare Deploy Hook'una
+            POST atar.
+          </li>
+          <li>
+            Cloudflare Pages GitLab'dan güncel kodu çeker, build komutunu
+            çalıştırır (<code>bun run build</code>) ve{" "}
+            <code>dist/client</code> çıktısını global CDN'e dağıtır.
+          </li>
+          <li>
+            Yeni deploy tamamlandığında Cloudflare size bir önizleme URL'i
+            verir. Yaklaşık 1-2 dakika içinde <code>mogankampus.com</code>{" "}
+            üzerinde yeni içerik görünür.
+          </li>
+        </ol>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Cloudflare Pages free tier aylık 500 build hakkı tanır. PocketBase
+          debounce penceresi çoklu kayıtlarda yalnızca tek POST tetikler, böylece
+          kota dostu kalır.
+        </p>
+      </section>
+    </main>
+  );
+}
+
+function DeployStatusBadge({
+  status,
+  label,
+}: {
+  status: "idle" | "pending" | "success" | "failed";
+  label?: string;
+}) {
+  const styles: Record<string, string> = {
+    idle: "bg-secondary text-foreground/70 border-border",
+    pending: "bg-accent/15 text-accent border-accent/40",
+    success: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    failed: "bg-rose-100 text-rose-800 border-rose-300",
+  };
+  const text: Record<string, string> = {
+    idle: "Beklemede",
+    pending: "Sırada",
+    success: "Başarılı",
+    failed: "Başarısız",
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-widest ${
+        styles[status] ?? styles.idle
+      }`}
+    >
+      <span aria-hidden>
+        {status === "success" ? "✓" : status === "failed" ? "✕" : status === "pending" ? "•" : "•"}
+      </span>
+      {label ?? text[status]}
+    </span>
   );
 }
 

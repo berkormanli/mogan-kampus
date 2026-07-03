@@ -9,6 +9,7 @@ import { HomeTeacherSection } from "@/components/home/TeacherSection";
 import { HomeContactSection } from "@/components/home/ContactSection";
 import { AboutPageContent, ContactPageContent, ProgramsIndex, WorkshopsIndex, VenuesIndex } from "@/components/PublicPages";
 import { PreviewProvider } from "@/components/preview/PreviewContext";
+import { Link } from "@tanstack/react-router";
 import type { SiteContent } from "@/lib/site-content.defaults";
 
 function UtilityBarPreview({ utility }: { utility: SiteContent["utility"] }) {
@@ -90,6 +91,21 @@ function FooterPreview({ footer }: { footer: SiteContent["footer"] }) {
   );
 }
 
+function PublicPagePreviewLink({ to, label }: { to: string; label: string }) {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh] px-6">
+      <Link
+        to={to}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex min-h-12 items-center justify-center rounded-md bg-primary px-7 py-3 text-sm font-bold uppercase tracking-[0.16em] text-primary-foreground transition hover:bg-accent"
+      >
+        {label} <span aria-hidden className="ml-1">→</span>
+      </Link>
+    </div>
+  );
+}
+
 export function ContentPreview({
   sectionKey,
   content,
@@ -114,6 +130,18 @@ export function ContentPreview({
         {sectionKey === "workshopsPage" && <WorkshopsIndex content={content} />}
         {sectionKey === "venuesPage" && <VenuesIndex content={content} />}
         {sectionKey === "contactPage" && <ContactPageContent content={content} />}
+        {sectionKey === "yazOkulu" && (
+          <PublicPagePreviewLink to="/yaz-okulu" label="Yaz Okulu sayfasını aç" />
+        )}
+        {sectionKey === "educereAtolyeleri" && (
+          <PublicPagePreviewLink to="/educere-atolyeleri" label="Educere Atölyeleri sayfasını aç" />
+        )}
+        {sectionKey === "okulGezileri" && (
+          <PublicPagePreviewLink to="/okul-gezileri" label="Okul Gezileri sayfasını aç" />
+        )}
+        {sectionKey === "etkinlikler" && (
+          <PublicPagePreviewLink to="/etkinlikler" label="Etkinlikler sayfasını aç" />
+        )}
         {sectionKey === "utility" && <UtilityBarPreview utility={content.utility} />}
         {sectionKey === "nav" && <NavPreview nav={content.nav} />}
         {sectionKey === "faqs" && <FaqsPreview faqs={content.faqs} />}

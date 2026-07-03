@@ -16,7 +16,8 @@
     "validate:pocketbase": "node scripts/validate-pocketbase.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed:from-defaults": "node scripts/dump-defaults.mjs && node scripts/seed-from-defaults.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

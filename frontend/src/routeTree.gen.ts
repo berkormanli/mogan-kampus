@@ -9,11 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YazOkuluRouteImport } from './routes/yaz-okulu'
 import { Route as ProgramlarRouteImport } from './routes/programlar'
+import { Route as OkulGezileriRouteImport } from './routes/okul-gezileri'
 import { Route as MekanlarRouteImport } from './routes/mekanlar'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IletisimRouteImport } from './routes/iletisim'
 import { Route as HakkindaRouteImport } from './routes/hakkinda'
+import { Route as EtkinliklerRouteImport } from './routes/etkinlikler'
+import { Route as EducereAtolyeleriRouteImport } from './routes/educere-atolyeleri'
 import { Route as AtolyelerRouteImport } from './routes/atolyeler'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -22,9 +26,19 @@ import { Route as MekanlarSlugRouteImport } from './routes/mekanlar.$slug'
 import { Route as AtolyelerSlugRouteImport } from './routes/atolyeler.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const YazOkuluRoute = YazOkuluRouteImport.update({
+  id: '/yaz-okulu',
+  path: '/yaz-okulu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgramlarRoute = ProgramlarRouteImport.update({
   id: '/programlar',
   path: '/programlar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OkulGezileriRoute = OkulGezileriRouteImport.update({
+  id: '/okul-gezileri',
+  path: '/okul-gezileri',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MekanlarRoute = MekanlarRouteImport.update({
@@ -45,6 +59,16 @@ const IletisimRoute = IletisimRouteImport.update({
 const HakkindaRoute = HakkindaRouteImport.update({
   id: '/hakkinda',
   path: '/hakkinda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtkinliklerRoute = EtkinliklerRouteImport.update({
+  id: '/etkinlikler',
+  path: '/etkinlikler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducereAtolyeleriRoute = EducereAtolyeleriRouteImport.update({
+  id: '/educere-atolyeleri',
+  path: '/educere-atolyeleri',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtolyelerRoute = AtolyelerRouteImport.update({
@@ -85,11 +109,15 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atolyeler': typeof AtolyelerRouteWithChildren
+  '/educere-atolyeleri': typeof EducereAtolyeleriRoute
+  '/etkinlikler': typeof EtkinliklerRoute
   '/hakkinda': typeof HakkindaRoute
   '/iletisim': typeof IletisimRoute
   '/login': typeof LoginRoute
   '/mekanlar': typeof MekanlarRouteWithChildren
+  '/okul-gezileri': typeof OkulGezileriRoute
   '/programlar': typeof ProgramlarRouteWithChildren
+  '/yaz-okulu': typeof YazOkuluRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/atolyeler/$slug': typeof AtolyelerSlugRoute
   '/mekanlar/$slug': typeof MekanlarSlugRoute
@@ -98,11 +126,15 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atolyeler': typeof AtolyelerRouteWithChildren
+  '/educere-atolyeleri': typeof EducereAtolyeleriRoute
+  '/etkinlikler': typeof EtkinliklerRoute
   '/hakkinda': typeof HakkindaRoute
   '/iletisim': typeof IletisimRoute
   '/login': typeof LoginRoute
   '/mekanlar': typeof MekanlarRouteWithChildren
+  '/okul-gezileri': typeof OkulGezileriRoute
   '/programlar': typeof ProgramlarRouteWithChildren
+  '/yaz-okulu': typeof YazOkuluRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/atolyeler/$slug': typeof AtolyelerSlugRoute
   '/mekanlar/$slug': typeof MekanlarSlugRoute
@@ -113,11 +145,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/atolyeler': typeof AtolyelerRouteWithChildren
+  '/educere-atolyeleri': typeof EducereAtolyeleriRoute
+  '/etkinlikler': typeof EtkinliklerRoute
   '/hakkinda': typeof HakkindaRoute
   '/iletisim': typeof IletisimRoute
   '/login': typeof LoginRoute
   '/mekanlar': typeof MekanlarRouteWithChildren
+  '/okul-gezileri': typeof OkulGezileriRoute
   '/programlar': typeof ProgramlarRouteWithChildren
+  '/yaz-okulu': typeof YazOkuluRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/atolyeler/$slug': typeof AtolyelerSlugRoute
   '/mekanlar/$slug': typeof MekanlarSlugRoute
@@ -128,11 +164,15 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/atolyeler'
+    | '/educere-atolyeleri'
+    | '/etkinlikler'
     | '/hakkinda'
     | '/iletisim'
     | '/login'
     | '/mekanlar'
+    | '/okul-gezileri'
     | '/programlar'
+    | '/yaz-okulu'
     | '/admin'
     | '/atolyeler/$slug'
     | '/mekanlar/$slug'
@@ -141,11 +181,15 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/atolyeler'
+    | '/educere-atolyeleri'
+    | '/etkinlikler'
     | '/hakkinda'
     | '/iletisim'
     | '/login'
     | '/mekanlar'
+    | '/okul-gezileri'
     | '/programlar'
+    | '/yaz-okulu'
     | '/admin'
     | '/atolyeler/$slug'
     | '/mekanlar/$slug'
@@ -155,11 +199,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/atolyeler'
+    | '/educere-atolyeleri'
+    | '/etkinlikler'
     | '/hakkinda'
     | '/iletisim'
     | '/login'
     | '/mekanlar'
+    | '/okul-gezileri'
     | '/programlar'
+    | '/yaz-okulu'
     | '/_authenticated/admin'
     | '/atolyeler/$slug'
     | '/mekanlar/$slug'
@@ -170,20 +218,38 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AtolyelerRoute: typeof AtolyelerRouteWithChildren
+  EducereAtolyeleriRoute: typeof EducereAtolyeleriRoute
+  EtkinliklerRoute: typeof EtkinliklerRoute
   HakkindaRoute: typeof HakkindaRoute
   IletisimRoute: typeof IletisimRoute
   LoginRoute: typeof LoginRoute
   MekanlarRoute: typeof MekanlarRouteWithChildren
+  OkulGezileriRoute: typeof OkulGezileriRoute
   ProgramlarRoute: typeof ProgramlarRouteWithChildren
+  YazOkuluRoute: typeof YazOkuluRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yaz-okulu': {
+      id: '/yaz-okulu'
+      path: '/yaz-okulu'
+      fullPath: '/yaz-okulu'
+      preLoaderRoute: typeof YazOkuluRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/programlar': {
       id: '/programlar'
       path: '/programlar'
       fullPath: '/programlar'
       preLoaderRoute: typeof ProgramlarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/okul-gezileri': {
+      id: '/okul-gezileri'
+      path: '/okul-gezileri'
+      fullPath: '/okul-gezileri'
+      preLoaderRoute: typeof OkulGezileriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mekanlar': {
@@ -212,6 +278,20 @@ declare module '@tanstack/react-router' {
       path: '/hakkinda'
       fullPath: '/hakkinda'
       preLoaderRoute: typeof HakkindaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etkinlikler': {
+      id: '/etkinlikler'
+      path: '/etkinlikler'
+      fullPath: '/etkinlikler'
+      preLoaderRoute: typeof EtkinliklerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/educere-atolyeleri': {
+      id: '/educere-atolyeleri'
+      path: '/educere-atolyeleri'
+      fullPath: '/educere-atolyeleri'
+      preLoaderRoute: typeof EducereAtolyeleriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atolyeler': {
@@ -318,11 +398,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AtolyelerRoute: AtolyelerRouteWithChildren,
+  EducereAtolyeleriRoute: EducereAtolyeleriRoute,
+  EtkinliklerRoute: EtkinliklerRoute,
   HakkindaRoute: HakkindaRoute,
   IletisimRoute: IletisimRoute,
   LoginRoute: LoginRoute,
   MekanlarRoute: MekanlarRouteWithChildren,
+  OkulGezileriRoute: OkulGezileriRoute,
   ProgramlarRoute: ProgramlarRouteWithChildren,
+  YazOkuluRoute: YazOkuluRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

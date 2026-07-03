@@ -16,13 +16,13 @@ export function HomeStatsSection({ content }: { content: SiteContent["stats"] })
         <p className="mt-8 text-lg text-foreground/80 max-w-xl leading-relaxed">{content.text}</p>
         <div className="mt-8 flex flex-wrap gap-4">
           <Link
-            to="/atolyeler"
+            to="/educere-atolyeleri"
             className="bg-primary text-primary-foreground px-6 py-3 uppercase tracking-widest text-sm hover:bg-accent transition"
           >
             {content.primaryCta}
           </Link>
           <Link
-            to="/mekanlar"
+            to="/yaz-okulu"
             className="border-2 border-primary text-primary px-6 py-3 uppercase tracking-widest text-sm hover:bg-primary hover:text-primary-foreground transition"
           >
             {content.secondaryCta}

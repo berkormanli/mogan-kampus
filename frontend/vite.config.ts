@@ -16,12 +16,6 @@ export default defineConfig({
     tanstackStart({
       prerender: {
         enabled: true,
-        routes: [
-          "/",
-          "/programlar/*",
-          "/atolyeler/*",
-          "/mekanlar/*",
-        ],
         crawlLinks: true,
         filter: ({ path }) =>
           !path.startsWith("/admin") && path !== "/login",

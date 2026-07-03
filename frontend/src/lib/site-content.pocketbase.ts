@@ -74,6 +74,66 @@ export async function updateSiteContentClient(key: string, data: unknown) {
   return { ok: true };
 }
 
+export type DeployStatus = "idle" | "pending" | "success" | "failed";
+
+export type DeployState = {
+  status: DeployStatus;
+  message: string;
+  triggeredBy: string;
+  triggeredAt: string;
+};
+
+const DEPLOY_REQUEST_KEY = "__deploy_request";
+
+/**
+ * Fires a Cloudflare Pages rebuild by writing a synthetic deploy_request
+ * record into site_content. The PocketBase hook (pb_hooks/main.pb.js)
+ * catches this event, debounces it with the rest of the change queue,
+ * and POSTs to the Cloudflare Deploy Hook URL. This keeps the webhook
+ * URL on the PocketBase server and never exposes it to the browser.
+ */
+export async function triggerDeployClient(): Promise<DeployState> {
+  const userEmail =
+    (pb.authStore.record as { email?: string } | null)?.email ?? "unknown";
+  const now = new Date().toISOString();
+  const data = {
+    __kind: "deploy_request",
+    who: userEmail,
+    at: now,
+  };
+
+  const payload: Record<string, unknown> = {
+    key: DEPLOY_REQUEST_KEY,
+    data,
+  };
+  const userId = pb.authStore.record?.id;
+  if (userId) payload.updatedBy = userId;
+
+  try {
+    const existing = await pb
+      .collection("site_content")
+      .getFirstListItem(pb.filter("key={:key}", { key: DEPLOY_REQUEST_KEY }));
+    await pb.collection("site_content").update(existing.id, payload);
+  } catch (error) {
+    if (error && typeof error === "object" && "status" in error && error.status === 404) {
+      await pb.collection("site_content").create(payload);
+    } else {
+      throw error;
+    }
+  }
+
+  // Optimistic pending state; the hook is fire-and-forget so we don't
+  // know the Cloudflare HTTP status. Refresh `deployConfig` afterwards
+  // to surface the actual result.
+  return {
+    status: "pending",
+    message:
+      "Yayınlama isteği PocketBase'e iletildi. Cloudflare Pages yeniden derleme tetiklendi.",
+    triggeredBy: userEmail,
+    triggeredAt: now,
+  };
+}
+
 export async function uploadSiteImageClient(file: File) {
   const formData = new FormData();
   formData.append("file", file);

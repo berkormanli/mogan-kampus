@@ -292,43 +292,20 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const links = content.links ?? [];
+
   const navLinks = (
     <>
-      <Link
-        to="/hakkinda"
-        className="hover:text-accent transition"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        Hakkında
-      </Link>
-      <Link
-        to="/programlar"
-        className="hover:text-accent transition"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        Programlar
-      </Link>
-      <Link
-        to="/atolyeler"
-        className="hover:text-accent transition"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        Atölyeler
-      </Link>
-      <Link
-        to="/mekanlar"
-        className="hover:text-accent transition"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        Mekanlar
-      </Link>
-      <Link
-        to="/iletisim"
-        className="hover:text-accent transition"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        İletişim
-      </Link>
+      {links.map((link) => (
+        <Link
+          key={link.to}
+          to={link.to}
+          className="hover:text-accent transition"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          {link.label}
+        </Link>
+      ))}
       <Link
         to="/iletisim"
         className={`px-4 py-2 transition ${
@@ -355,18 +332,20 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
         <Link to="/" className="flex items-center gap-3">
           <img src={logoPng} alt="Mogan Kampüs" className="h-14 w-auto" />
           <span
-            className={`flex flex-col font-serif text-lg leading-tight transition-colors duration-300 md:text-xl ${
+            className={`flex flex-col font-serif leading-tight transition-colors duration-300 ${
               isDark ? "text-cream" : "text-primary"
             }`}
           >
-            <span>{content.brand}</span>
-            <span>{content.kicker}</span>
+            <span className="text-lg md:text-xl">{content.brand}</span>
+            <span className="text-xs md:text-sm tracking-[0.18em] uppercase opacity-90">
+              {content.kicker}
+            </span>
             <span
-              className={`whitespace-nowrap text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
+              className={`whitespace-nowrap text-[0.65rem] md:text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
                 isDark ? "text-cream/60" : "text-muted-foreground"
               }`}
             >
-              Bir Eğitim Kampüsü
+              {content.campLabel}
             </span>
           </span>
         </Link>
@@ -392,14 +371,23 @@ export function Nav({ content }: { content: SiteContent["nav"] }) {
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetContent
             side="right"
-            className={`w-3/4 sm:max-w-sm ${isDark ? "bg-ink text-cream" : "bg-background text-foreground"}`}
+            className={`w-[85vw] max-w-sm p-6 ${isDark ? "bg-ink text-cream" : "bg-background text-foreground"}`}
           >
             <SheetHeader className="sr-only">
               <SheetTitle>Navigasyon Menüsü</SheetTitle>
               <SheetDescription>Mobil navigasyon menüsü</SheetDescription>
             </SheetHeader>
+            <div className="mt-2 mb-6 flex items-center gap-3 border-b border-current/10 pb-5">
+              <img src={logoPng} alt="Mogan Kampüs" className="h-10 w-auto" />
+              <span className="flex flex-col font-serif leading-tight">
+                <span className="text-base">{content.brand}</span>
+                <span className="text-[0.65rem] tracking-[0.2em] uppercase opacity-70">
+                  {content.campLabel}
+                </span>
+              </span>
+            </div>
             <nav
-              className={`flex flex-col gap-6 text-sm tracking-wider uppercase pt-8 ${isDark ? "text-cream/80" : "text-foreground/80"}`}
+              className={`flex flex-col gap-5 text-sm tracking-wider uppercase ${isDark ? "text-cream/85" : "text-foreground/85"}`}
             >
               {navLinks}
             </nav>

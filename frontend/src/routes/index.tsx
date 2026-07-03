@@ -14,6 +14,8 @@ import { HomeVenuesSection } from "@/components/home/VenuesSection";
 import { HomeTeacherSection } from "@/components/home/TeacherSection";
 import { HomeContactSection } from "@/components/home/ContactSection";
 import { HomeInfoCtaSection } from "@/components/home/InfoCtaSection";
+import { HomeYazOkuluSection } from "@/components/home/YazOkuluSection";
+import { HomeEducereAtolyeleriSection } from "@/components/home/EducereAtolyeleriSection";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,10 +43,12 @@ function Home() {
   return (
     <SiteChrome content={content}>
       <HomeHeroSection content={content.hero} />
-      <HomeVenuesSection content={content.venues} />
-      <HomeProgramsSection content={content.programs} />
       <HomeStatsSection content={content.stats} />
+      <HomeYazOkuluSection content={content.yazOkulu} />
+      <HomeEducereAtolyeleriSection content={content.educereAtolyeleri} />
+      <HomeProgramsSection content={content.programs} />
       <HomeWorkshopsSection content={content.workshops} />
+      <HomeVenuesSection content={content.venues} />
       <HomeGallerySection content={content.gallery} />
       <HomeInfoCtaSection />
       <HomeTeacherSection content={content.teacher} />

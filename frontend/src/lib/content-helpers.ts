@@ -9,9 +9,20 @@ import {
 import { getSiteContentClient, type SiteContentMap } from "@/lib/site-content.pocketbase";
 import contentBundle from "@/lib/content-bundle.json";
 
+/**
+ * Public-facing content query. The site is intentionally static:
+ *   - Admins edit content via PocketBase (`updateSiteContentClient`).
+ *   - Build script (`bun run build`) calls `fetch-content-bundle.mjs` to
+ *     pull the latest records into `src/lib/content-bundle.json`.
+ *   - Public pages read only the build-time bundle; there is no runtime
+ *     fetch from PocketBase in production.
+ *
+ * If you change admin content, run `bun run build` (or `bun run deploy:aws`)
+ * so the bundle is refreshed and the static site reflects the edits.
+ */
 export const siteContentQuery = {
   queryKey: ["site-content"],
-  queryFn: getSiteContentClient,
+  queryFn: async () => contentBundle as SiteContentMap,
   placeholderData: contentBundle as SiteContentMap,
   staleTime: Infinity,
 };
